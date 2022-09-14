@@ -4,7 +4,7 @@ else
 include documents/common.make
 endif
 
-all: processor newmonitor emulator
+all: keyboard processor newmonitor emulator
 
 processor:
 	make -C processor
@@ -16,5 +16,6 @@ newmonitor:
 emulator:
 	make -C emulator		
 
-
+keyboard:
+	make -C keyboard
 
