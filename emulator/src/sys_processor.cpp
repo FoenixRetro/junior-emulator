@@ -125,7 +125,7 @@ void CPUReset(void) {
 	mapping = ramMemory+0x08; 														// Default mapping (through LUT0)
 	writeProtect = 0;
 	for (int i = 0;i < 8;i++) { 													// Map to first pages.
-		mapping[i] = (i < 0x07) ? i : i + 0x78;
+		mapping[i] = i;
 		ramMemory[i+8] = mapping[i];
 	}
 	for (int i = 0;i < 8*256;i++) {
@@ -134,9 +134,9 @@ void CPUReset(void) {
 
 	isPageCMemory = ((ramMemory[1] & 4) != 0);										// Set PageC RAM flag.
 
-	HWReset();																		// Reset Hardware
-
 	for (int i = 0;i < 4096;i++) Write(0xF000+i,monitor_rom[i]);					// Copy ROM images in
+
+	HWReset();																		// Reset Hardware
 
 	inFastMode = 0;																	// Fast mode flag reset
 

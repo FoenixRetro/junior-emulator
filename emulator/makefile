@@ -18,12 +18,6 @@ all: emulator
 run: emulator 
 	.$(S)$(APPNAME) basic.rom@8000
 
-monitor:
-	make -B -C ..$(S)keyboard
-	make -B -C ..$(S)..$(S)junior-tinykernel
-	$(CCOPY) ..$(S)..$(S)junior-tinykernel$(S)roms$(S)*.h roms
-	touch src$(S)sys_processor.cpp 
-
 emulator: prebuild $(APPNAME)
 	$(CCOPY) $(APPNAME) ..$(S)..$(S)bin
 	
@@ -37,4 +31,6 @@ clean:
 
 $(APPNAME): $(SOURCES)
 	$(CC) $(SOURCES) $(LDFLAGS) $(SDL_LDFLAGS) -o $@
-	
+
+prebuild:
+	make -B -C roms
