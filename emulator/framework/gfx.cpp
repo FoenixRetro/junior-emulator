@@ -93,9 +93,9 @@ static void _GFXMainLoop(void *arg) {
 		}
 		if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {					// Handle other keys.
 			_GFXUpdateKeyRecord(event.key.keysym.sym,event.type == SDL_KEYDOWN);
-			for (int kc = 0;kc < 144;kc++) {
+			for (int kc = 0;kc < 128;kc++) {
 				if (sdlKeySymbolList[kc] == event.key.keysym.sym) {
-					if (event.type == SDL_KEYUP) HWQueueKeyboardEvent(0xF0);
+					if (event.type == SDL_KEYUP) kc |= 0x80;
 					HWQueueKeyboardEvent(kc);
 				}
 			}

@@ -11,7 +11,6 @@ processor:
 
 newmonitor:
 	make -B -C ..$(S)junior-tinykernel
-	$(CCOPY) ..$(S)junior-tinykernel$(S)monitor.rom emulator
 	
 emulator:
 	make -C emulator		

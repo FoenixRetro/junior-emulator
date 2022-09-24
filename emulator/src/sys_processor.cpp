@@ -116,7 +116,6 @@ void CPUSaveArguments(int argc,char *argv[]) {
 // *******************************************************************************************************************************
 
 #include "roms/monitor_rom.h"
-#include "roms/basic_rom.h"
 #include "roms/character_rom.h"
 
 static void CPULoadChunk(FILE *f,BYTE8* memory,WORD16 address,int count);
