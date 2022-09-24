@@ -373,7 +373,6 @@ _HKExit:
 ;                                        
 ; ********************************************************************************
 
-
 ConvertInsertKey:
 		tax 								; scan code in X
 		lda 	ASCIIFromScanCode,x 		; get ASCII unshifted 
@@ -471,12 +470,50 @@ _SRClear:
 	cpx 	#$FF
 	bne 	_SRClear	
 	jsr 	SelectPage0
+
+    LDA #$FF
+    ; Setup the EDGE Trigger 
+    STA INT_EDGE_REG0
+    STA INT_EDGE_REG1
+    ; Mask all Interrupt @ This Point
+    STA INT_MASK_REG0
+    STA INT_MASK_REG1
+    ; Clear both pending interrupt
+    lda INT_PENDING_REG0
+    sta INT_PENDING_REG0
+    lda INT_PENDING_REG1
+    sta INT_PENDING_REG1     
+
 	jsr 	TinyVickyInitialise
 	jsr 	Init_Text_LUT
 	jsr 	LoadGraphicsLUT
 	jsr 	ClearScreen
 	inc 	yPosition
 	inc 	yPosition
+
+    lda #200
+    sta VKY_LINE_CMP_VALUE_LO
+    lda #0
+    sta VKY_LINE_CMP_VALUE_HI
+    lda #$01 
+    sta VKY_LINE_IRQ_CTRL_REG
+
+    SEI
+    lda INT_PENDING_REG0  ; Read the Pending Register &
+    and #JR0_INT01_SOL
+    sta INT_PENDING_REG0  ; Writing it back will clear the Active Bit
+    lda INT_MASK_REG0
+    and #~JR0_INT01_SOL
+    sta INT_MASK_REG0
+
+    lda INT_PENDING_REG0  ; Read the Pending Register &
+    and #JR0_INT02_KBD
+    sta INT_PENDING_REG0  ; Writing it back will clear the Active Bit
+    ; remove the mask
+    lda INT_MASK_REG0
+    and #~JR0_INT02_KBD
+    sta INT_MASK_REG0                
+
 	;
 	jsr 	SelectPage0
 	lda 	#1
@@ -485,15 +522,19 @@ _SRClear:
 	stz 	$D102
 	stz 	$D103
 	;
-	lda 	#"M"
+	inc 	$700
+	lda 	$700
+	and 	#15
+	ora 	#64
 	jsr 	$FFD2
 	;
 	jsr 	INITKEYBOARD
 	cli
-	jmp 	($00FE) 	
+;	jmp 	($00FE) 	
 	
 NextChar:	
 	jsr 	NewReadKeyboard
+	jsr 	PrintCharacter
 	jsr 	PrintCharacter
 	jmp 	NextChar
 

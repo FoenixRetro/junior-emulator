@@ -273,52 +273,35 @@ initkb_loop_out
 ; ****************************************************************************************
 
 IRQHandler      
-                pha                
-                lda     CurrentPage                 ; switch to page 0
-                and     #$FC
-                sta     IOPageRegister
+                pha
 
-                LDA INT_PENDING_REG0                ; received reg0 SOL interrupt
-                CMP #$00
-                BEQ CHECK_PENDING_REG1
+                lda     1
+                pha
+                and     #$F8
+                sta     1
 
-                ; Process SOL
-                LDA INT_PENDING_REG0                ; was it SOL interrupt
-                AND #JR0_INT01_SOL
-                CMP #JR0_INT01_SOL
-                BNE CHECK_KEYBOARD                  ; bug, was pending S1
-                ; clear pending
-                STA INT_PENDING_REG0
-
-                
-                lda BORDER_COLOR_R                  ; change the background colour.
-                adc #$01
-                sta BORDER_COLOR_R
-
-CHECK_KEYBOARD
                 LDA INT_PENDING_REG0                ; received Keyboard interrupt ?
                 AND #JR0_INT02_KBD
                 CMP #JR0_INT02_KBD
-                BNE CHECK_PENDING_REG1
+                BNE EXIT_IRQ_HANDLE
                 ; clear pending
-                STA INT_PENDING_REG0
-
+;
                 LDA KBD_INPT_BUF                    ; Get Scan Code from KeyBoard
                 jsr     HandleKeyboard
 
-                bra CHECK_PENDING_REG1
 
+EXIT_IRQ_HANDLE:
+                lda INT_PENDING_REG0
+                sta INT_PENDING_REG0
+                lda INT_PENDING_REG1
+                sta INT_PENDING_REG1                      
 
-CHECK_PENDING_REG1                                  ; R1 interrupt checks (none)
-                LDA INT_PENDING_REG1
-                CMP #$00
-                BEQ EXIT_IRQ_HANDLE          
-
-EXIT_IRQ_HANDLE
-                lda     CurrentPage                 ; restore current I/O Page
-                sta     IOPageRegister
                 pla
-                RTI 
+                sta     1
+
+                pla
+                rti
+
 
 ; ****************************************************************************************
 ;
@@ -343,3 +326,4 @@ _LGLLoop:   lda     _GraphicsLUT,x
             
 _GraphicsLUT:
             .binary    "gfxlut.palette"
+            

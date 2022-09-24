@@ -39,6 +39,7 @@ static BYTE8 isPageCMemory; 														// Is Page $C000-$DFFF memory.
 static int argumentCount;
 static char **argumentList;
 static LONG32 cycles;																// Cycle Count.
+static BYTE8 inFastMode; 															// Fast mode
 
 // *******************************************************************************************************************************
 //											 Memory and I/O read and write macros.
@@ -80,6 +81,8 @@ static inline BYTE8 _Read(WORD16 address) {
 }
 
 static inline void _Write(WORD16 address,BYTE8 data) { 
+	if (address == 0xFFFA) inFastMode = data; 										// Switch fast off/on
+	
 	if (address < 0x10) {						
 		ramMemory[address] = data;													// Save it.
 		if (address == 1) isPageCMemory = ((ramMemory[1] & 4) != 0);
@@ -129,9 +132,14 @@ void CPUReset(void) {
 	for (int i = 0;i < 8*256;i++) {
 		IOWriteMemory(1,i+0xC000,character_rom[i]);
 	}
+
 	isPageCMemory = ((ramMemory[1] & 4) != 0);										// Set PageC RAM flag.
+
 	HWReset();																		// Reset Hardware
+
 	for (int i = 0;i < 4096;i++) Write(0xF000+i,monitor_rom[i]);					// Copy ROM images in
+
+	inFastMode = 0;																	// Fast mode flag reset
 
 	for (int i = 1;i < argumentCount;i++) {
 		char szBuffer[128];
@@ -170,8 +178,9 @@ BYTE8 CPUExecuteInstruction(void) {
 	switch(opcode) {																// Execute it.
 		#include "6502/__6502opcodes.h"
 	}
-	if (cycles < CYCLES_PER_FRAME) return 0;										// Not completed a frame.
-	cycles = cycles - CYCLES_PER_FRAME;												// Adjust this frame rate.
+	int cycleMax = inFastMode ? CYCLES_PER_FRAME*10:CYCLES_PER_FRAME; 		
+	if (cycles < cycleMax) return 0;												// Not completed a frame.
+	cycles = 0;																		// Reset cycle counter.
 	HWSync();																		// Update any hardware
 	return FRAME_RATE;																// Return frame rate.
 }

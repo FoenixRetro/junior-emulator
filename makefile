@@ -8,13 +8,13 @@ all: keyboard processor newmonitor emulator
 
 processor:
 	make -C processor
-	$(CCOPY) emulator$(S)jr256$(APPSTEM) .
 
 newmonitor:
 	make -C newmon	
 	
 emulator:
 	make -C emulator		
+	$(CCOPY) emulator$(S)jr256$(APPSTEM) .
 
 keyboard:
 	make -C keyboard
