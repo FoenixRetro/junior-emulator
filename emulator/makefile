@@ -19,7 +19,8 @@ run: emulator
 	.$(S)$(APPNAME) basic.rom@8000
 
 monitor:
-	make -BC ..$(S)newmon
+	make -B -C ..$(S)..$(S)junior-tinykernel
+	$(CCOPY) ..$(S)..$(S)junior-tinykernel$(S)monitor.rom . 
 	touch src$(S)sys_processor.cpp 
 
 emulator: prebuild $(APPNAME)
