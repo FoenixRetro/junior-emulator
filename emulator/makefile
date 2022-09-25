@@ -19,7 +19,7 @@ run: emulator
 	.$(S)$(APPNAME) basic.rom@8000
 
 emulator: prebuild $(APPNAME)
-	$(CCOPY) $(APPNAME) ..$(S)..$(S)bin
+	$(CCOPY) $(APPNAME) ..$(S)bin
 	
 %.o:%.cpp
 	$(CC) $(CXXFLAGS) -D INCLUDE_DEBUGGING_SUPPORT -I cpu -I framework -I include -c -o $@ $<
