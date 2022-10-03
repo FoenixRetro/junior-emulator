@@ -122,6 +122,9 @@ static void CPULoadChunk(FILE *f,BYTE8* memory,WORD16 address,int count);
 
 
 void CPUReset(void) {
+	for (int i = 0x2000;i < 0x4000;i++) {
+		ramMemory[i] = 0xFF;
+	}
 	mapping = ramMemory+0x08; 														// Default mapping (through LUT0)
 	writeProtect = 0;
 	for (int i = 0;i < 8;i++) { 													// Map to first pages.
