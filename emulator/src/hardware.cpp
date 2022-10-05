@@ -145,27 +145,8 @@ void HWWriteDisplay(WORD16 address,BYTE8 data) {
 // *******************************************************************************************************************************
 
 void HWQueueKeyboardEvent(int ps2code) {
-	if (ps2code != 0x0e) {
-		//printf("queued %x\n",ps2code);
-		HWQueueInsert(&keyboardQueue,ps2code);
-	}
+	//printf("queued %x\n",ps2code);
+	HWQueueInsert(&keyboardQueue,ps2code);
 }
-
-// *******************************************************************************************************************************
-//											Access keyboard
-// *******************************************************************************************************************************
-
-static const BYTE8 keyboardMap[] = {
-	'1','2','3','4','5','6','7',0,
-	'8','9','0','@','-',GFXKEY_BACKSPACE,0,0,
-	'.','L','O',0,GFXKEY_RETURN,0,0,0,
-	'W','E','R','T','Y','U','I',0,
-	'S','D','F','G','H','J','K',0,
-	'X','C','V','B','N','M',',',0,
-	'Q','A','Z',' ','/',';','P',0,
-	0,GFXKEY_CONTROL,0,0,0,GFXKEY_LSHIFT,GFXKEY_RSHIFT,0	
-};
-
-
 
 
