@@ -28,6 +28,7 @@
 static int renderCount = 0;
 
 static void DGBXRenderBitmap(int base,int x1,int y1,int xs,int ys);
+static void DGBXRenderSprite(int addr,int xs,int ys);
 
 // *******************************************************************************************************************************
 //											This renders the debug screen
@@ -151,6 +152,16 @@ void DBGXRender(int *address,int showDisplay) {
 			if (IOReadMemory(0,0xD108) & 1) DGBXRenderBitmap(0xD108,x1,y1,xSize*2,ySize*2);
 		}
 		//
+		//		Draw sprites
+		//
+		if ((ctrl & 0x20) == 0x20) {
+			for (int s = 0;s < 64;s++) {
+				if (IOReadMemory(0,0xD900+s*8) & 0x01) {
+					DGBXRenderSprite(0xD900+s*8,xSize*2,ySize*2);
+				}
+			}		
+		}
+		//
 		//		Draw text mode, possibly overlaid.
 		//
 		int height = (IOReadMemory(0,0xD001) & 1) ? 50 : 60;
@@ -214,11 +225,38 @@ static void DGBXRenderBitmap(int base,int x1,int y1,int xs,int ys) {
 		SDL_Rect rc;rc.x = x1;rc.y = y1 + y * ys;rc.w = xs;rc.h = ys;
 		for (int x = 0;x < 320;x++) {
 			int colour = *bitmap++;
+			//if (x == 0 && y == 0) printf("B:%d %d\n",colour,lut);
 			if (colourCache[colour] < 0) colourCache[colour] = DBGXGetColour(1,lut,colour);
 			if (colour != 0) {
 				GFXRectangle(&rc,colourCache[colour]);
 			}
 			rc.x += rc.w;
+		}
+	}
+}
+
+static void DGBXRenderSprite(int addr,int xs,int ys) {
+	int sprGraphic = IOReadMemory(0,addr+1)+													// Sprite address
+							(IOReadMemory(0,addr+2) << 8)+(IOReadMemory(0,addr+3) << 16);
+	int size = 8*(4-((IOReadMemory(0,addr) << 5) & 3));											// Size
+	int lut = ((IOReadMemory(0,addr) >> 2) & 3) * 0x400+0xD000; 								// Graphics LUT in page 1.
+	int xPos = IOReadMemory(0,addr+4)+(IOReadMemory(0,addr+5) << 8);							// Position
+	int yPos = IOReadMemory(0,addr+6)+(IOReadMemory(0,addr+7) << 8);							
+	//printf("SP:%x %x %d %d %x %x\n",addr,sprGraphic,size,lut,xPos,yPos);
+	BYTE8 *bitmap = CPUAccessMemory()+sprGraphic;
+	int colourCache[256]; 																		// Cache of converted colours.
+	for (int i = 0;i < 256;i++) colourCache[i] = -1;
+
+	for (int y = 0;y < size;y++) {
+		SDL_Rect rc;rc.x = (xPos-32)*xs;rc.y = (yPos+y-32) * ys;rc.w = xs;rc.h = ys;
+		for (int x = 0;x < size;x++) {
+			int colour = *bitmap++;
+			//if (x == 0 && y == 0) printf("S:%d %d\n",colour,lut);
+			if (colourCache[colour] < 0) colourCache[colour] = DBGXGetColour(1,lut,colour);
+			if (colour != 0) {
+				GFXRectangle(&rc,colourCache[colour]);
+			}
+			rc.x += rc.w;			
 		}
 	}
 }

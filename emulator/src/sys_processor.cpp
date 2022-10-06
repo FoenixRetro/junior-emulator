@@ -120,10 +120,9 @@ void CPUSaveArguments(int argc,char *argv[]) {
 
 static void CPULoadChunk(FILE *f,BYTE8* memory,WORD16 address,int count);
 
-
 void CPUReset(void) {
-	for (int i = 0x2000;i < 0x4000;i++) {
-		ramMemory[i] = 0xFF;
+	for (int i = 0x10000;i < MEMSIZE;i++) {
+		ramMemory[i] = rand();
 	}
 	mapping = ramMemory+0x08; 														// Default mapping (through LUT0)
 	writeProtect = 0;
@@ -141,7 +140,6 @@ void CPUReset(void) {
 
 	HWReset();																		// Reset Hardware
 
-	inFastMode = 0;																	// Fast mode flag reset
 
 	for (int i = 1;i < argumentCount;i++) {
 		char szBuffer[128];
@@ -160,6 +158,9 @@ void CPUReset(void) {
 		fclose(f);
 		printf("Loaded '%s' to $%04x..$%04x\n",szBuffer,startAddress,loadAddress-1);
 	}
+
+	inFastMode = 0;																	// Fast mode flag reset
+
 	writeProtect = -1;
 	resetProcessor();																// Reset CPU
 }
