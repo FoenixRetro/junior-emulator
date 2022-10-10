@@ -154,7 +154,11 @@ void CPUReset(void) {
 		ramMemory[0xFF] = loadAddress >> 8;
 		FILE *f = fopen(szBuffer,"rb");
 		if (f == NULL) exit(fprintf(stderr,"No file %s\n",argumentList[i]));
-		while (!feof(f)) CPUWriteMemory(loadAddress++,fgetc(f));
+		while (!feof(f)) {
+			if (loadAddress < MEMSIZE) {
+				ramMemory[loadAddress++] = fgetc(f);
+			}
+		}
 		fclose(f);
 		printf("Loaded '%s' to $%04x..$%04x\n",szBuffer,startAddress,loadAddress-1);
 	}
