@@ -238,7 +238,7 @@ static void DGBXRenderBitmap(int base,int x1,int y1,int xs,int ys) {
 static void DGBXRenderSprite(int addr,int xs,int ys) {
 	int sprGraphic = IOReadMemory(0,addr+1)+													// Sprite address
 							(IOReadMemory(0,addr+2) << 8)+(IOReadMemory(0,addr+3) << 16);
-	int size = 8*(4-((IOReadMemory(0,addr) << 5) & 3));											// Size
+	int size = 8*(4-((IOReadMemory(0,addr) >> 5) & 3));											// Size
 	int lut = ((IOReadMemory(0,addr) >> 2) & 3) * 0x400+0xD000; 								// Graphics LUT in page 1.
 	int xPos = IOReadMemory(0,addr+4)+(IOReadMemory(0,addr+5) << 8);							// Position
 	int yPos = IOReadMemory(0,addr+6)+(IOReadMemory(0,addr+7) << 8);							
