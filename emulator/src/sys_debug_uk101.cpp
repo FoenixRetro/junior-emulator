@@ -28,7 +28,7 @@
 static int renderCount = 0;
 
 static void DGBXRenderBitmap(int base,int x1,int y1,int xs,int ys);
-static void DGBXRenderSprite(int addr,int xs,int ys);
+static void DGBXRenderSprite(int addr,int x1,int y1,int xs,int ys);
 
 // *******************************************************************************************************************************
 //											This renders the debug screen
@@ -157,7 +157,7 @@ void DBGXRender(int *address,int showDisplay) {
 		if ((ctrl & 0x20) == 0x20) {
 			for (int s = 0;s < 64;s++) {
 				if (IOReadMemory(0,0xD900+s*8) & 0x01) {
-					DGBXRenderSprite(0xD900+s*8,xSize*2,ySize*2);
+					DGBXRenderSprite(0xD900+s*8,x1,y1,xSize*2,ySize*2);
 				}
 			}		
 		}
@@ -235,7 +235,7 @@ static void DGBXRenderBitmap(int base,int x1,int y1,int xs,int ys) {
 	}
 }
 
-static void DGBXRenderSprite(int addr,int xs,int ys) {
+static void DGBXRenderSprite(int addr,int x1,int y1,int xs,int ys) {
 	int sprGraphic = IOReadMemory(0,addr+1)+													// Sprite address
 							(IOReadMemory(0,addr+2) << 8)+(IOReadMemory(0,addr+3) << 16);
 	int size = 8*(4-((IOReadMemory(0,addr) >> 5) & 3));											// Size
@@ -248,7 +248,7 @@ static void DGBXRenderSprite(int addr,int xs,int ys) {
 	for (int i = 0;i < 256;i++) colourCache[i] = -1;
 
 	for (int y = 0;y < size;y++) {
-		SDL_Rect rc;rc.x = (xPos-32)*xs;rc.y = (yPos+y-32) * ys;rc.w = xs;rc.h = ys;
+		SDL_Rect rc;rc.x = x1+(xPos-32)*xs;rc.y = y1+(yPos+y-32) * ys;rc.w = xs;rc.h = ys;
 		for (int x = 0;x < size;x++) {
 			int colour = *bitmap++;
 			//if (x == 0 && y == 0) printf("S:%d %d\n",colour,lut);

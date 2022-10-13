@@ -21,7 +21,7 @@
 // *******************************************************************************************************************************
 
 #define CYCLE_RATE 		(6290*1000)													// Cycles per second (0.96Mhz)
-#define FRAME_RATE		(60)														// Frames per second (50 arbitrary)
+#define FRAME_RATE		(70)														// Frames per second (50 arbitrary)
 #define CYCLES_PER_FRAME (CYCLE_RATE / FRAME_RATE)									// Cycles per frame (20,000)
 
 // *******************************************************************************************************************************

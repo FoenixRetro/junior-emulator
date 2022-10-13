@@ -131,6 +131,16 @@ void HWSync(void) {
 			CPUInterruptMaskable();							// fire IRQ
 		}
 	}
+	if (IOReadMemory(0,0xD658) & 1) { 						// Timer on.
+		int a = 0xD659;
+		int c = 1;
+		while (c != 0) {
+			int b = IOReadMemory(0,a)+1;
+			IOWriteMemory(0,a,b & 0xFF);
+			c = (b == 0x100) ? 1 : 0;
+			a++;
+		}
+	}
 }
 
 // *******************************************************************************************************************************
