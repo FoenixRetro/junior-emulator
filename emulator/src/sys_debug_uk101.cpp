@@ -55,16 +55,18 @@ void DBGXRender(int *address,int showDisplay) {
 	GFXSetCharacterSize(36,24);
 	DBGVerticalLabel(21,0,labels,DBGC_ADDRESS,-1);									// Draw the labels for the register
 
-	GFXString(GRID(30,0),"IO",GRIDSIZE,DBGC_ADDRESS,-1);
+	GFXString(GRID(30,0),"MMU",GRIDSIZE,DBGC_ADDRESS,-1);
+	GFXString(GRID(30,1),"IO",GRIDSIZE,DBGC_ADDRESS,-1);
+	GFXNumber(GRID(34,0),CPUReadMemory(0),16,2,GRIDSIZE,DBGC_DATA,-1);
 	int io = CPUReadMemory(1);
 	if (io & 4) {
-		GFXString(GRID(30,0),"Mem",GRIDSIZE,DBGC_DATA,-1);
+		GFXString(GRID(30,1),"Mem",GRIDSIZE,DBGC_DATA,-1);
 	} else {
-		GFXNumber(GRID(33,0),io & 3,6,1,GRIDSIZE,DBGC_DATA,-1);
+		GFXNumber(GRID(34,1),io & 3,16,1,GRIDSIZE,DBGC_DATA,-1);
 	}
 	for (int i = 0;i < 8;i++) {
-		GFXNumber(GRID(30,i+1),i,16,1,GRIDSIZE,DBGC_ADDRESS,-1);
-		GFXNumber(GRID(33,i+1),s->mapping[i] << 13,16,5,GRIDSIZE,DBGC_DATA,-1);
+		GFXNumber(GRID(30,i+2),i,16,1,GRIDSIZE,DBGC_ADDRESS,-1);
+		GFXNumber(GRID(34,i+2),s->mapping[i] << 13,16,5,GRIDSIZE,DBGC_DATA,-1);
 	}
 
 	#define DN(v,w) GFXNumber(GRID(24,n++),v,16,w,GRIDSIZE,DBGC_DATA,-1)			// Helper macro
