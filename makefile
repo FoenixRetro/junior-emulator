@@ -4,8 +4,11 @@ else
 include documents/common.make
 endif
 
-all: 
+all:emulator
+
+emulator: 
 	make -C emulator		
 	$(CCOPY) emulator$(S)jr256$(APPSTEM) .
 
-
+run:emulator
+	.$(S)jr256$(APPSTEM) basic.rom@8000 dummy.code@3000
