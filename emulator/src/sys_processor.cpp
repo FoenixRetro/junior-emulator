@@ -140,6 +140,9 @@ void CPUReset(void) {
 
 	HWReset();																		// Reset Hardware
 
+	#ifdef EMSCRIPTEN  																// Loading in stuff alternative for emScripten
+	#include "loaders.h" 															// Partly because preload storage does not work :(
+	#endif
 
 	for (int i = 1;i < argumentCount;i++) {
 		char szBuffer[128];
