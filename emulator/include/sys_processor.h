@@ -13,6 +13,7 @@
 #define _PROCESSOR_H
 
 #define MEMSIZE 		(0x100000)													// 1Mb of Memory.
+#define FLASH_PAGE 		(0x3F) 														// Page the boot ROM is loaded into.
 
 typedef unsigned short WORD16;														// 8 and 16 bit types.
 typedef unsigned char  BYTE8;

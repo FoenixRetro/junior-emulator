@@ -135,14 +135,14 @@ void CPUReset(void) {
 		mapping[i] = i;
 		ramMemory[i+8] = mapping[i];
 	}
-	mapping[7] = ramMemory[7] = 0x7F;
+	mapping[7] = ramMemory[7] = FLASH_PAGE;
 
 	for (int i = 0;i < 8*256;i++) {
 		IOWriteMemory(1,i+0xC000,character_rom[i]);
 	}
 
 	isPageCMemory = ((ramMemory[1] & 4) != 0);										// Set PageC RAM flag.
-	CPUCopyROM(0xFF000,0x1000,monitor_rom); 										// Load the tiny kernal by default.
+	CPUCopyROM((FLASH_PAGE << 13)+0x1000,0x1000,monitor_rom); 						// Load the tiny kernal by default.
 	HWReset();																		// Reset Hardware
 
 	#ifdef EMSCRIPTEN  																// Loading in stuff alternative for emScripten
