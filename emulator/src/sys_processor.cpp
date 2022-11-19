@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "sys_processor.h"
 #include "sys_debug_system.h"
 #include "hardware.h"
@@ -151,15 +152,20 @@ void CPUReset(void) {
 
 	for (int i = 1;i < argumentCount;i++) {
 		char szBuffer[128];
-		int loadAddress,startAddress;
+		int loadAddress;
 		strcpy(szBuffer,argumentList[i]);											// Get buffer
 		char *p = strchr(szBuffer,'@');
 		if (p == NULL) exit(fprintf(stderr,"Bad argument %s\n",argumentList[i]));
 		*p++ = '\0';
-		if (sscanf(p,"%x",&loadAddress) != 1) exit(fprintf(stderr,"Bad argument %s\n",argumentList[i]));
-		startAddress = loadAddress;
-		ramMemory[0xFE] = loadAddress & 0xFF;
-		ramMemory[0xFF] = loadAddress >> 8;
+		loadAddress = -1;
+		if (p[1] == '\0') {
+			if (toupper(p[0]) == 'B') loadAddress = FLASH_BASIC << 13;
+			if (toupper(p[0]) == 'M') loadAddress = FLASH_MONITOR << 13;
+		}
+		if (loadAddress < 0) {
+			if (sscanf(p,"%x",&loadAddress) != 1) exit(fprintf(stderr,"Bad argument %s\n",argumentList[i]));
+		}
+		printf("Loading '%s' to $%04x ..",szBuffer,loadAddress);
 		FILE *f = fopen(szBuffer,"rb");
 		if (f == NULL) exit(fprintf(stderr,"No file %s\n",argumentList[i]));
 		while (!feof(f)) {
@@ -168,7 +174,7 @@ void CPUReset(void) {
 			}
 		}
 		fclose(f);
-		printf("Loaded '%s' to $%04x..$%04x\n",szBuffer,startAddress,loadAddress-1);
+		printf("Okay\n");
 	}
 
 	inFastMode = 0;																	// Fast mode flag reset

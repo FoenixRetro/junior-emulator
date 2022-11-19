@@ -14,7 +14,7 @@
 
 #define MEMSIZE 		(0x100000)													// 1Mb of Memory.
 #define FLASH_MONITOR 	(0x3F) 														// Page the boot ROM is loaded into.
-#define FLASH_BASIC 	(0x3C)
+#define FLASH_BASIC 	(0x04) 														// Page(s) the basic ROM is loaded into.
 
 typedef unsigned short WORD16;														// 8 and 16 bit types.
 typedef unsigned char  BYTE8;

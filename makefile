@@ -11,4 +11,4 @@ emulator:
 	$(CCOPY) emulator$(S)jr256$(APPSTEM) .
 
 run:emulator
-	.$(S)jr256$(APPSTEM) basic.rom@8000 dummy.code@3000
+	.$(S)jr256$(APPSTEM) basic.rom@B dummy.code@3000
