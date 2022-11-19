@@ -14,7 +14,7 @@ Assorted additional bits and pieces
 https://github.com/paulscottrobson/junior-utilities
 
 The tiny kernal currently used to boot the emulator
-https://github.com/paulscottrobson/junior-utilities
+https://github.com/paulscottrobson/junior-tinykernel
 
 Basic Repository
 https://github.com/paulscottrobson/superbasic
