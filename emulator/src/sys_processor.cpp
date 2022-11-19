@@ -116,7 +116,7 @@ void CPUSaveArguments(int argc,char *argv[]) {
 // *******************************************************************************************************************************
 
 void CPUCopyROM(int address,int size,const BYTE8 *data) {
-	for (int i = 0;i < size;i++) Write(address+i,data[i]);					
+	for (int i = 0;i < size;i++) ramMemory[address+i] = data[i];					
 }
 
 // *******************************************************************************************************************************
@@ -129,21 +129,20 @@ void CPUCopyROM(int address,int size,const BYTE8 *data) {
 static void CPULoadChunk(FILE *f,BYTE8* memory,WORD16 address,int count);
 
 void CPUReset(void) {
-	for (int i = 0x10000;i < MEMSIZE;i++) {
-		ramMemory[i] = rand();
-	}
 	mapping = ramMemory+0x08; 														// Default mapping (through LUT0)
 	writeProtect = 0;
 	for (int i = 0;i < 8;i++) { 													// Map to first pages.
 		mapping[i] = i;
 		ramMemory[i+8] = mapping[i];
 	}
+	mapping[7] = ramMemory[7] = 0x7F;
+
 	for (int i = 0;i < 8*256;i++) {
 		IOWriteMemory(1,i+0xC000,character_rom[i]);
 	}
 
 	isPageCMemory = ((ramMemory[1] & 4) != 0);										// Set PageC RAM flag.
-	CPUCopyROM(0xF000,0x1000,monitor_rom); 											// Load the tiny kernal by default.
+	CPUCopyROM(0xFF000,0x1000,monitor_rom); 										// Load the tiny kernal by default.
 	HWReset();																		// Reset Hardware
 
 	#ifdef EMSCRIPTEN  																// Loading in stuff alternative for emScripten

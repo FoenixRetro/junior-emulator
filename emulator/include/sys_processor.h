@@ -12,7 +12,7 @@
 #ifndef _PROCESSOR_H
 #define _PROCESSOR_H
 
-#define MEMSIZE 		(1048576)													// 1Mb of Memory.
+#define MEMSIZE 		(0x100000)													// 1Mb of Memory.
 
 typedef unsigned short WORD16;														// 8 and 16 bit types.
 typedef unsigned char  BYTE8;
