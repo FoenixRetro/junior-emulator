@@ -112,6 +112,14 @@ void CPUSaveArguments(int argc,char *argv[]) {
 }
 
 // *******************************************************************************************************************************
+//													ROM Copying helper
+// *******************************************************************************************************************************
+
+void CPUCopyROM(int address,int size,const BYTE8 *data) {
+	for (int i = 0;i < size;i++) Write(address+i,data[i]);					
+}
+
+// *******************************************************************************************************************************
 //														Reset the CPU
 // *******************************************************************************************************************************
 
@@ -135,9 +143,7 @@ void CPUReset(void) {
 	}
 
 	isPageCMemory = ((ramMemory[1] & 4) != 0);										// Set PageC RAM flag.
-
-	for (int i = 0;i < 4096;i++) Write(0xF000+i,monitor_rom[i]);					// Copy ROM images in
-
+	CPUCopyROM(0xF000,0x1000,monitor_rom); 											// Load the tiny kernal by default.
 	HWReset();																		// Reset Hardware
 
 	#ifdef EMSCRIPTEN  																// Loading in stuff alternative for emScripten
