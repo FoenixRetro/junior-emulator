@@ -33,7 +33,7 @@ RUNNING
 
 To run use jr256 <file> <file> <file> where <file> is a filename followed by an @ followed by a load address in hex
 
-e.g. ./jr256 basic.rom@8000	dummy.code@3000 - the make run option/
+e.g. ./jr256 basic.rom@b	dummy.code@3000 - the make run option/
 
 The kernal simply initialises and jumps to $8000. So this line loads the BASIC rom to $8000 and a dummy to $3000 (because the kernal has
 no save and load at the moment, the source code is loaded into memory at boot - this is just an end of file marker)
