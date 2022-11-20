@@ -1,2 +1,0 @@
-Modify to Load BASIC to Flash at FLASH_BASIC and then page it in, rather than loading direct.
-Fix the mapping (!)
