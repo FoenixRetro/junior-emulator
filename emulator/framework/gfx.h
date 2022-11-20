@@ -67,19 +67,23 @@ int  GFXTimer(void);
 void GFXSetCharacterSize(int xSize,int ySize);
 void GFXDefineCharacter(int nChar,int b1,int b2,int b3,int b4,int b5);
 void GFXCloseOnDebug(void);
+void GFXSilence(void);
 
 int GFXXRender(SDL_Surface *surface,int autoStart);
-void GFXSetFrequency(int freq);
+void GFXSetFrequency(int freq,int channel);
 
 class Beeper
 {
 private:
-	double freq;
-    double v;
+    double noise;
+    double freq1,freq2,freq3;
+    double v1,v2,v3;
+    SDL_AudioDeviceID dev;
 public:
     Beeper();
     ~Beeper();
-    void setFrequency(double freq);
+    void setup(void);
+    void setFrequency(double freq,int channel);
     void generateSamples(Sint16 *stream, int length);
 };
 

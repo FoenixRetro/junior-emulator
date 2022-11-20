@@ -50,6 +50,7 @@ void GFXOpenWindow(const char *title,int width,int height,int colour) {
 		exit(printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError()));
 	}
 
+	beeper.setup();
 	mainWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, 					// Try to create a window
 							SDL_WINDOWPOS_UNDEFINED, width,height, SDL_WINDOW_SHOWN );
 	if (mainWindow == NULL) {
@@ -368,60 +369,76 @@ int  GFXTimer(void) {
 
 // *******************************************************************************************************************************
 //
-//													Audio 
+//													Audio : 3 channel + noise.
 //
 // *******************************************************************************************************************************
 
-const int AMPLITUDE = 28000;
+const int AMPLITUDE = 9000;
 const int FREQUENCY = 44100;
 
 void audio_callback(void*, Uint8*, int);
 
 Beeper::Beeper()
-{
-    SDL_AudioSpec desiredSpec;
+{ 
+}
 
+void Beeper::setup(void) {
+    SDL_AudioSpec desiredSpec;
+    SDL_zero(desiredSpec);
     desiredSpec.freq = FREQUENCY;
-    desiredSpec.format = AUDIO_S16SYS;
+    desiredSpec.format = AUDIO_S16LSB;
     desiredSpec.channels = 1;
-    desiredSpec.samples = 2048;
+    desiredSpec.samples = 512;
     desiredSpec.callback = audio_callback;
     desiredSpec.userdata = this;
 
     SDL_AudioSpec obtainedSpec;
-    SDL_OpenAudio(&desiredSpec, &obtainedSpec);
-    SDL_PauseAudio(0);
-    setFrequency(0);
+    dev = SDL_OpenAudioDevice(NULL,0,&desiredSpec, &obtainedSpec,0);
+    if (dev == 0) 
+    	printf("Couldn't open audio %s\n",SDL_GetError());
+    if (desiredSpec.format != obtainedSpec.format) 
+    	printf("Wrong format. %x %x\n",desiredSpec.format,obtainedSpec.format);
+    SDL_PauseAudioDevice(dev,0);
+    setFrequency(0,0);
+    setFrequency(0,1);
+    setFrequency(0,2);
+    setFrequency(0,3);
 }
 
 Beeper::~Beeper()
 {
-    SDL_CloseAudio();
+    SDL_CloseAudioDevice(dev);
 }
 
 void Beeper::generateSamples(Sint16 *stream, int length)
 {
     int i = 0;
+    for (int n = 0;n < length;n++) stream[n] = 0;
     while (i < length) {
-
-        if (freq == 0) {
-            while (i < length) {
-                stream[i] = 0;
-                i++;
-            }
-            return;
-       	}
-       	int samplesToDo = length;
-        while (i < samplesToDo) {
-            stream[i] = AMPLITUDE * ((((int)v*2/FREQUENCY) % 2) ? -1 : 1);
-            i++;
-            v += freq;
+    	if (freq1 != 0) {
+    		stream[i] += AMPLITUDE * ((((int)(v1*2/FREQUENCY)) % 2) ? -1 : 1);
+    	    v1 += freq1;
         }
+    	if (freq2 != 0) {
+    		stream[i] += AMPLITUDE * ((((int)(v2*2/FREQUENCY)) % 2) ? -1 : 1);
+    	    v2 += freq2;
+        }
+    	if (freq3 != 0) {
+    		stream[i] += AMPLITUDE * ((((int)(v3*2/FREQUENCY)) % 2) ? -1 : 1);
+    	    v3 += freq3;
+        }
+        if (noise != 0) {
+        	stream[i] += AMPLITUDE * ((rand() & 1) ? -1 : 1);	
+        }
+        i++;
     }
 }
 
-void Beeper::setFrequency(double f) {
-	freq = f;
+void Beeper::setFrequency(double f,int channel) {
+	if (channel == 0) noise = f;
+	if (channel == 1) freq1 = f;
+	if (channel == 2) freq2 = f;
+	if (channel == 3) freq3 = f;
 }
 
 void audio_callback(void *_beeper, Uint8 *_stream, int _length)
@@ -432,6 +449,14 @@ void audio_callback(void *_beeper, Uint8 *_stream, int _length)
     beeper->generateSamples(stream, length);
 }
 
-void GFXSetFrequency(int freq) {
-	beeper.setFrequency(freq);
+void GFXSetFrequency(int freq,int channel) {
+	beeper.setFrequency(freq,channel);
+	printf("%d %d\n",channel,freq);
+}
+
+void GFXSilence(void) {
+	beeper.setFrequency(0,0);
+	beeper.setFrequency(1,0);
+	beeper.setFrequency(2,0);
+	beeper.setFrequency(3,0);
 }
