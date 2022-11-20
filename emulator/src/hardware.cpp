@@ -176,11 +176,19 @@ void HWQueueKeyboardEvent(int ps2code) {
 //								Write byte to 76489, handles left & right
 // *******************************************************************************************************************************
 
+
+static int _HWGetFrequency(void) {
+	int rPair = SN76489_current & 0xFE;
+	if (SN76489_reg[rPair+1] != 0 || SN76489_reg[rPair] == 0) return 0;
+	return 111563 / SN76489_reg[rPair];
+}
+
 static void HWWriteSoundChip(int data) {
+	int startFreq,endFreq;
 	if (data & 0x80) {
 		SN76489_current = (data >> 4) & 7;
 	}
-
+	startFreq = _HWGetFrequency();
 	if (data & 0x80) {
 		SN76489_reg[SN76489_current] &= 0xFFF0;
 		SN76489_reg[SN76489_current] |= data & 0x0F;
@@ -188,5 +196,12 @@ static void HWWriteSoundChip(int data) {
 		SN76489_reg[SN76489_current] &= 0x000F;
 		SN76489_reg[SN76489_current] |= ((data & 0x3F) << 4);
 	}
-	printf("Register %d is %x %d\n",SN76489_current,SN76489_reg[SN76489_current],SN76489_reg[SN76489_current]);
+	//printf("Register %d is %x %d\n",SN76489_current,SN76489_reg[SN76489_current],SN76489_reg[SN76489_current]);
+	endFreq = _HWGetFrequency();
+	if (startFreq != endFreq) {
+		int gChannel = (SN76489_current >> 1) ^ 3;
+		printf("Changing pitch of %d to %d\n",gChannel,endFreq);
+		GFXSetFrequency(endFreq,gChannel);
+	}
+	//printf("Change: %d %d\n",endFreq,startFreq);
 }

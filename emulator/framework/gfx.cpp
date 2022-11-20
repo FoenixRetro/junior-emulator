@@ -399,10 +399,7 @@ void Beeper::setup(void) {
     if (desiredSpec.format != obtainedSpec.format) 
     	printf("Wrong format. %x %x\n",desiredSpec.format,obtainedSpec.format);
     SDL_PauseAudioDevice(dev,0);
-    setFrequency(0,0);
-    setFrequency(0,1);
-    setFrequency(0,2);
-    setFrequency(0,3);
+ 	noise = freq1 = freq2 = freq3 = 0;
 }
 
 Beeper::~Beeper()
@@ -451,7 +448,6 @@ void audio_callback(void *_beeper, Uint8 *_stream, int _length)
 
 void GFXSetFrequency(int freq,int channel) {
 	beeper.setFrequency(freq,channel);
-	printf("%d %d\n",channel,freq);
 }
 
 void GFXSilence(void) {
