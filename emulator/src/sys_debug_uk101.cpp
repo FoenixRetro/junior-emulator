@@ -19,7 +19,6 @@
 #include "hardware.h"
 
 #include "6502/__6502mnemonics.h"
-#include "roms/foenix_charset.h"
 
 #define DBGC_ADDRESS 	(0x0F0)														// Colour scheme.
 #define DBGC_DATA 		(0x0FF)														// (Background is in main.c)

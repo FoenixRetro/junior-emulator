@@ -111,6 +111,7 @@ static int HWQueueRemove(struct _Queue *q) {
 //												Reset Hardware
 // *******************************************************************************************************************************
 
+#include "roms/foenix_charset.h"
 
 void HWReset(void) {
 	keyboardQueue.count = 0;
@@ -126,6 +127,9 @@ void HWReset(void) {
 		SN76489_reg[i*2+1] = 0xF;							// Set all attenuation to $F e.g. off
 		SN76489_reg[i*2+0] = 0;								// Pitch zero.
 		GFXSetFrequency(i,0);								// All beepers off
+	}
+	for (int i = 0;i < 0x800;i++) {
+		IOWriteMemory(1,0xC000+i,foenix_charset[i]);
 	}
 }
 
