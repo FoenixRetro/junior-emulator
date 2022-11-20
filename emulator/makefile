@@ -22,7 +22,7 @@ emulator: prebuild $(APPNAME)
 	$(CCOPY) $(APPNAME) ..$(S)bin
 	
 %.o:%.cpp
-	$(CC) $(CXXFLAGS) -D INCLUDE_DEBUGGING_SUPPORT -I cpu -I framework -I include -c -o $@ $<
+	$(CC) $(CADDRESSES) $(CXXFLAGS) -D INCLUDE_DEBUGGING_SUPPORT -I cpu -I framework -I include -c -o $@ $<
 
 clean:
 	$(CDEL) $(APPNAME) 
