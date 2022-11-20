@@ -34,13 +34,15 @@ static BYTE8 carryFlag,interruptDisableFlag,breakFlag,								// Values represen
 			 decimalFlag,overflowFlag,sValue,zValue;
 static WORD16 pc;																	// Program Counter.
 static BYTE8 ramMemory[MEMSIZE];													// Memory at $0000 upwards
-static BYTE8 *mapping;
 static BYTE8 writeProtect;
 static BYTE8 isPageCMemory; 														// Is Page $C000-$DFFF memory.
 static int argumentCount;
 static char **argumentList;
 static LONG32 cycles;																// Cycle Count.
 static BYTE8 inFastMode; 															// Fast mode
+static BYTE8 *currentMap;  															// Current map (8 bytes)
+static BYTE8 *currentEditMap; 														// Current edited map (may be NULL)
+static BYTE8 mappingMemory[32]; 													// Current mapped memory.
 
 // *******************************************************************************************************************************
 //											 Memory and I/O read and write macros.
@@ -65,7 +67,7 @@ static inline void _Write(WORD16 address,BYTE8 data);								// used in support 
 //											   Read and Write Inline Functions
 // *******************************************************************************************************************************
 
-#define MAPPING(a)  ((mapping[(a) >> 13] << 13) | ((a) & 0x1FFF)) 					// Map address through mapping table.
+#define MAPPING(a)  ((currentMap[(a) >> 13] << 13) | ((a) & 0x1FFF)) 				// Map address through mapping table.
 
 BYTE8 *CPUAccessMemory(void) {
 	return ramMemory;
@@ -77,21 +79,40 @@ static inline BYTE8 _Read(WORD16 address) {
 	if (isPageCMemory == 0 && address >= 0xC000 && address < 0xE000) { 				// Hardware check
 		return IOReadMemory(ramMemory[1] & 3,address);
 	} 
+
+	if (currentEditMap != NULL && address >= 8 && address < 16) { 					// Access current memory map if editing only.
+		return currentEditMap[address-8];
+	}
+
 	int a = MAPPING(address);
 	return ramMemory[a];
 }
 
 static inline void _Write(WORD16 address,BYTE8 data) { 
 	if (address == 0xFFFA) inFastMode = data; 										// Switch fast off/on
-	
-	if (address < 0x10) {						
-		ramMemory[address] = data;													// Save it.
-		if (address == 1) isPageCMemory = ((ramMemory[1] & 4) != 0);
-		if (address >= 0x08 && address < 0x10) { 									// Set up mapping.
-			mapping[address-0x08] = data;
+
+	if (address < 16) { 															// Writing in the control area perhaps.
+		if (currentEditMap != NULL && address >= 8 && address < 16) { 				// Writing current memory map in editing mode.
+			currentEditMap[address-8] = data;
+			return;
+		}
+		ramMemory[address] = data; 													// Update the data there.
+
+		if (address == 0) {															// Accessing MMU Control
+			currentMap = mappingMemory + 8 * (data & 3); 	 						// Select current usage map.
+			currentEditMap = NULL;
+			if (data & 0x80) { 														// Edit mode ?
+				currentEditMap = mappingMemory + 8 * ((data >> 4) & 3); 			// Set current edit map pointer.
+			}
+		}
+
+		if (address == 1) { 														// Accessing I/O control
+			isPageCMemory = ((ramMemory[1] & 4) != 0); 								// Set Page C usage flag
 		}
 		return;
 	}
+
+
 	if (isPageCMemory == 0 && address >= 0xC000 && address < 0xE000) {				// Hardware check.
 		IOWriteMemory(ramMemory[1] & 3,address,data);
 	} else {
@@ -130,13 +151,14 @@ void CPUCopyROM(int address,int size,const BYTE8 *data) {
 static void CPULoadChunk(FILE *f,BYTE8* memory,WORD16 address,int count);
 
 void CPUReset(void) {
-	mapping = ramMemory+0x08; 														// Default mapping (through LUT0)
 	writeProtect = 0;
-	for (int i = 0;i < 8;i++) { 													// Map to first pages.
-		mapping[i] = i;
-		ramMemory[i+8] = mapping[i];
+	currentMap = mappingMemory; 													// Current access map
+	currentEditMap = NULL; 															// Not editing.
+	ramMemory[0] = 0; 																// Default MMU Control
+	for (int i = 0;i < 32;i++) { 													// Map LUT 0 to 0-7, all others to 0.
+		mappingMemory[i] = (i < 88) ? i : 0;
 	}
-	mapping[7] = ramMemory[7] = FLASH_MONITOR;
+	mappingMemory[7] = FLASH_MONITOR;												// Map the last to flash memory's location.
 
 	for (int i = 0;i < 8*256;i++) {
 		IOWriteMemory(1,i+0xC000,character_rom[i]);
@@ -265,7 +287,6 @@ static void CPULoadChunk(FILE *f,BYTE8* memory,WORD16 address,int count) {
 			int addr = MAPPING(address);
 			ramMemory[addr+i] = chunkBuffer[i];
 		}
-
 		count = count - qty;
 		address = address + qty;
 	}
@@ -283,7 +304,7 @@ CPUSTATUS *CPUGetStatus(void) {
 	st.decimal = decimalFlag;st.brk = breakFlag;st.overflow = overflowFlag;
 	st.sign = (sValue & 0x80) != 0;st.status = constructFlagRegister();
 	st.cycles = cycles;
-	for (int i = 0;i < 8;i++) st.mapping[i] = mapping[i];
+	for (int i = 0;i < 8;i++) st.mapping[i] = currentMap[i];
 	return &st;
 }
 
