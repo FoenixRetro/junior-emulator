@@ -27,9 +27,14 @@ struct _Queue keyboardQueue;
 static int keyboardDataWriteBuffer,keyboardDataReadBuffer;
 static int ibfFlag,obfFlag;
 
+static int SN76489_reg[8];										// 8 registers of 76489 (Tone/Attenuation 0..3)
+static int SN76489_current = 0;									// Currently selected register.
+
 static BYTE8 ioMemory[4*0x4000];
 static BYTE8 loadableData[0x100000];
 static int loadDataSize,loadDataPointer;
+
+static void HWWriteSoundChip(int data);
 
 // *******************************************************************************************************************************
 //												Read from load data ($FFFA)
@@ -65,6 +70,9 @@ BYTE8 IOReadMemory(BYTE8 page,WORD16 address) {
 
 void IOWriteMemory(BYTE8 page,WORD16 address,BYTE8 data) {
 	if (page == 0) {
+		if (address == 0xD600 || address == 0xD610) {
+			HWWriteSoundChip(data);
+		}
 		if (address == 0xD640) { 								// Write output buffer
 			ibfFlag = -1*0; 									// Set IBF - never - we're faking it.
 			keyboardDataReadBuffer = data; 						// Put in KDRBuffer
@@ -114,6 +122,11 @@ void HWReset(void) {
 		fclose(f);
 		printf("%d loaded.\n",loadDataSize);
 	}
+	for (int i = 0;i < 4;i++) {				
+		SN76489_reg[i*2+1] = 0xF;							// Set all attenuation to $F e.g. off
+		SN76489_reg[i*2+0] = 0;								// Pitch zero.
+		GFXSetFrequency(i,0);								// All beepers off
+	}
 }
 
 // *******************************************************************************************************************************
@@ -159,4 +172,21 @@ void HWQueueKeyboardEvent(int ps2code) {
 	HWQueueInsert(&keyboardQueue,ps2code);
 }
 
+// *******************************************************************************************************************************
+//								Write byte to 76489, handles left & right
+// *******************************************************************************************************************************
 
+static void HWWriteSoundChip(int data) {
+	if (data & 0x80) {
+		SN76489_current = (data >> 4) & 7;
+	}
+
+	if (data & 0x80) {
+		SN76489_reg[SN76489_current] &= 0xFFF0;
+		SN76489_reg[SN76489_current] |= data & 0x0F;
+	} else {
+		SN76489_reg[SN76489_current] &= 0x000F;
+		SN76489_reg[SN76489_current] |= ((data & 0x3F) << 4);
+	}
+	printf("Register %d is %x %d\n",SN76489_current,SN76489_reg[SN76489_current],SN76489_reg[SN76489_current]);
+}
