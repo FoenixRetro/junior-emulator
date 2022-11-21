@@ -186,7 +186,7 @@ static void HWWriteSoundChip(int data) {
 	endFreq = _HWGetFrequency();
 	if (startFreq != endFreq) {
 		int gChannel = (SN76489_current >> 1) ^ 3;
-		printf("Changing pitch of %d to %d\n",gChannel,endFreq);
+		//printf("Changing pitch of %d to %d\n",gChannel,endFreq);
 		GFXSetFrequency(endFreq,gChannel);
 	}
 	//printf("Change: %d %d\n",endFreq,startFreq);
