@@ -452,7 +452,7 @@ void GFXSetFrequency(int freq,int channel) {
 
 void GFXSilence(void) {
 	beeper.setFrequency(0,0);
-	beeper.setFrequency(1,0);
-	beeper.setFrequency(2,0);
-	beeper.setFrequency(3,0);
+	beeper.setFrequency(0,1);
+	beeper.setFrequency(0,2);
+	beeper.setFrequency(0,3);
 }
