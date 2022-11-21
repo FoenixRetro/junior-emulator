@@ -74,7 +74,6 @@ BYTE8 *CPUAccessMemory(void) {
 }
 
 static inline BYTE8 _Read(WORD16 address) {
-	if (address == 0xFFFA) return IOReadSource(); 									// Cheat reading from 'disk'
 
 	if (isPageCMemory == 0 && address >= 0xC000 && address < 0xE000) { 				// Hardware check
 		return IOReadMemory(ramMemory[1] & 3,address);

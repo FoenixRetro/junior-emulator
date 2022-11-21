@@ -31,19 +31,8 @@ static int SN76489_reg[8];										// 8 registers of 76489 (Tone/Attenuation 0.
 static int SN76489_current = 0;									// Currently selected register.
 
 static BYTE8 ioMemory[4*0x4000];
-static BYTE8 loadableData[0x100000];
-static int loadDataSize,loadDataPointer;
 
 static void HWWriteSoundChip(int data);
-
-// *******************************************************************************************************************************
-//												Read from load data ($FFFA)
-// *******************************************************************************************************************************
-
-BYTE8 IOReadSource(void) {
-	if (loadDataPointer < loadDataSize) return loadableData[loadDataPointer++];
-	return 0xFF;
-}
 
 // *******************************************************************************************************************************
 //												Read from I/O Space
@@ -116,13 +105,6 @@ static int HWQueueRemove(struct _Queue *q) {
 void HWReset(void) {
 	keyboardQueue.count = 0;
 	keyboardDataWriteBuffer = keyboardDataReadBuffer = ibfFlag = obfFlag = 0;
-	loadDataPointer = loadDataSize = 0;
-	FILE *f = fopen("storage/load.dat","rb");
-	if (f != NULL) {
-		loadDataSize = fread(loadableData,1,sizeof(loadableData),f);
-		fclose(f);
-		printf("%d loaded.\n",loadDataSize);
-	}
 	for (int i = 0;i < 4;i++) {				
 		SN76489_reg[i*2+1] = 0xF;							// Set all attenuation to $F e.g. off
 		SN76489_reg[i*2+0] = 0;								// Pitch zero.
