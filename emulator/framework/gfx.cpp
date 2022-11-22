@@ -101,6 +101,22 @@ static void _GFXMainLoop(void *arg) {
 				}
 			}
 			//printf("%x\n",event.key.keysym.scancode);
+			int key = 0;
+			switch(event.key.keysym.sym) {
+				case SDLK_LEFT: key = 0x30;break;
+				case SDLK_RIGHT:key = 0x21;break;
+				case SDLK_UP:	key = 0x19;break;
+				case SDLK_DOWN: key = 0x31;break;
+			}
+			if (key != 0) {
+				if (event.type == SDL_KEYDOWN) {
+					HWQueueKeyboardEvent(0x1D);
+					HWQueueKeyboardEvent(key);
+				} else {
+					HWQueueKeyboardEvent(key|0x80);
+					HWQueueKeyboardEvent(0x1D|0x80);
+				}
+			}
 		}
 	}
 	SDL_FillRect(mainSurface, NULL, 												// Draw the background.

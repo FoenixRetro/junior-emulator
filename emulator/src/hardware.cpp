@@ -85,6 +85,7 @@ void IOWriteMemory(BYTE8 page,WORD16 address,BYTE8 data) {
 // *******************************************************************************************************************************
 
 static void HWQueueInsert(struct _Queue *q,int value) {
+	//printf("Insert %x\n",value);
 	if (q->count < QSIZE) q->queue[q->count++] = value;
 }
 
