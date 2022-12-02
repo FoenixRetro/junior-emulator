@@ -1,10 +1,10 @@
 #
 #		ROM exporter
 #
-import os
+import os,pathlib
 
 def export(sourceFile,targetFile):
-	romImage = [x for x in open(sourceFile,"rb").read(-1)]
+	romImage = pathlib.Path(sourceFile).read_bytes()
 	print("Exporting {0} ({1} bytes)".format(sourceFile,len(romImage)))
 	h = open(targetFile,"w")
 	romImage = ",".join([str(x) for x in romImage])
