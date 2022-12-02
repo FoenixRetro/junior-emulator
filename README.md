@@ -31,12 +31,16 @@ The emulator has SDL2 as a dependency. In Windows this needs to be installed int
 RUNNING
 =======
 
-To run use jr256 <file> <file> <file> where <file> is a filename followed by an @ followed by a load address in hex
+To run use jr256 <file> <file> <file> where <file> is a filename followed by an @ followed by a load address in hex. This load address is in
+the physical memory space *not* the 6502 space.
 
 e.g. ./jr256 basic.rom@b	dummy.code@3000 - the make run option/
 
 The kernal simply initialises and jumps to $8000. So this line loads the BASIC rom to $8000 and a dummy to $3000 (because the kernal has
 no save and load at the moment, the source code is loaded into memory at boot - this is just an end of file marker)
+
+It is possible to override the start address by having boot@1000 (say) in the line - which will cause it to jump to $1000. This address is in
+the 6502 space.
 
 STATE
 =====
@@ -48,9 +52,6 @@ Things that are implemented (mostly partially)
 - Bitmap
 - Sprites
 - Memory LUT
-
-Apologies for the terrible keyboard - I will fix this in the next few days, as there is now a Javascript version so it needs to respond properly,
-the duff key handling is because the keyboard code in the TinyKernel - which is a stopgap - was quick and dirty.
 
 DEBUGGER
 ========

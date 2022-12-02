@@ -171,6 +171,8 @@ void CPUReset(void) {
 	#include "loaders.h" 															// Partly because preload storage does not work :(
 	#endif
 
+	int bootAddress = 0x8000;
+
 	for (int i = 1;i < argumentCount;i++) {
 		char szBuffer[128];
 		int loadAddress;
@@ -186,22 +188,31 @@ void CPUReset(void) {
 		if (loadAddress < 0) {
 			if (sscanf(p,"%x",&loadAddress) != 1) exit(fprintf(stderr,"Bad argument %s\n",argumentList[i]));
 		}
-		printf("Loading '%s' to $%04x ..",szBuffer,loadAddress);
-		FILE *f = fopen(szBuffer,"rb");
-		if (f == NULL) exit(fprintf(stderr,"No file %s\n",argumentList[i]));
-		while (!feof(f)) {
-			if (loadAddress < MEMSIZE) {
-				ramMemory[loadAddress++] = fgetc(f);
+		if (strcmp(szBuffer,"boot") != 0) {
+			printf("Loading '%s' to $%06x ..",szBuffer,loadAddress);
+			FILE *f = fopen(szBuffer,"rb");
+			if (f == NULL) exit(fprintf(stderr,"No file %s\n",argumentList[i]));
+			while (!feof(f)) {
+				if (loadAddress < MEMSIZE) {
+					ramMemory[loadAddress++] = fgetc(f);
+				}
 			}
+			fclose(f);
+			printf("Okay\n");		
+		} else {
+			printf("Now booting to $%04x\n",bootAddress);
+			bootAddress = loadAddress;
 		}
-		fclose(f);
-		printf("Okay\n");
 	}
 
 	inFastMode = 0;																	// Fast mode flag reset
 
 	writeProtect = -1;
 	resetProcessor();																// Reset CPU
+	printf("Booting to %04x\n",bootAddress);
+	int patch = (FLASH_MONITOR << 13)+0x1FF8; 										// Where to patch.
+	ramMemory[patch] = bootAddress & 0xFF;
+	ramMemory[patch+1] = bootAddress >> 8;
 }
 
 void CPUInterruptMaskable(void) {
