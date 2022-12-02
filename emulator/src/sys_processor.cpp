@@ -44,6 +44,9 @@ static BYTE8 *currentMap;  															// Current map (8 bytes)
 static BYTE8 *currentEditMap; 														// Current edited map (may be NULL)
 static BYTE8 mappingMemory[32]; 													// Current mapped memory.
 
+static BYTE8 MMURegister;	 														// The MMU register
+static BYTE8 IORegister; 															// The I/O Register.
+
 // *******************************************************************************************************************************
 //											 Memory and I/O read and write macros.
 // *******************************************************************************************************************************
@@ -76,12 +79,15 @@ BYTE8 *CPUAccessMemory(void) {
 static inline BYTE8 _Read(WORD16 address) {
 
 	if (isPageCMemory == 0 && address >= 0xC000 && address < 0xE000) { 				// Hardware check
-		return IOReadMemory(ramMemory[1] & 3,address);
+		return IOReadMemory(IORegister & 3,address);
 	} 
 
 	if (currentEditMap != NULL && address >= 8 && address < 16) { 					// Access current memory map if editing only.
 		return currentEditMap[address-8];
 	}
+
+	if (address == 0) return MMURegister;
+	if (address == 1) return IORegister;
 
 	int a = MAPPING(address);
 	return ramMemory[a];
@@ -95,9 +101,10 @@ static inline void _Write(WORD16 address,BYTE8 data) {
 			currentEditMap[address-8] = data;
 			return;
 		}
-		ramMemory[address] = data; 													// Update the data there.
+		if (address == 1) IORegister = data;
 
 		if (address == 0) {															// Accessing MMU Control
+			MMURegister = data;
 			currentMap = mappingMemory + 8 * (data & 3); 	 						// Select current usage map.
 			currentEditMap = NULL;
 			if (data & 0x80) { 														// Edit mode ?
@@ -106,14 +113,14 @@ static inline void _Write(WORD16 address,BYTE8 data) {
 		}
 
 		if (address == 1) { 														// Accessing I/O control
-			isPageCMemory = ((ramMemory[1] & 4) != 0); 								// Set Page C usage flag
+			isPageCMemory = ((IORegister & 4) != 0); 								// Set Page C usage flag
 		}
 		return;
 	}
 
 
 	if (isPageCMemory == 0 && address >= 0xC000 && address < 0xE000) {				// Hardware check.
-		IOWriteMemory(ramMemory[1] & 3,address,data);
+		IOWriteMemory(IORegister&3,address,data);
 	} else {
 		int mapAddr = MAPPING(address); 											// Write if in first 512k
 		if (mapAddr < 0x8000000) {
@@ -153,7 +160,7 @@ void CPUReset(void) {
 	writeProtect = 0;
 	currentMap = mappingMemory; 													// Current access map
 	currentEditMap = NULL; 															// Not editing.
-	ramMemory[0] = 0; 																// Default MMU Control
+	MMURegister = IORegister = 0; 													// Default MMU Control
 	for (int i = 0;i < 32;i++) { 													// Map LUT 0 to 0-7, all others to 0.
 		mappingMemory[i] = (i < 88) ? i : 0;
 	}
@@ -163,7 +170,7 @@ void CPUReset(void) {
 		IOWriteMemory(1,i+0xC000,character_rom[i]);
 	}
 
-	isPageCMemory = ((ramMemory[1] & 4) != 0);										// Set PageC RAM flag.
+	isPageCMemory = ((IORegister & 4) != 0);										// Set PageC RAM flag.
 	CPUCopyROM((PAGE_MONITOR << 13),sizeof(monitor_rom),monitor_rom); 				// Load the tiny kernal by default.
 	HWReset();																		// Reset Hardware
 
@@ -206,9 +213,7 @@ void CPUReset(void) {
 			bootAddress = loadAddress;
 		}
 	}
-
 	inFastMode = 0;																	// Fast mode flag reset
-
 	writeProtect = -1;
 	resetProcessor();																// Reset CPU
 	printf("Booting to %04x\n",bootAddress);
