@@ -157,14 +157,14 @@ void CPUReset(void) {
 	for (int i = 0;i < 32;i++) { 													// Map LUT 0 to 0-7, all others to 0.
 		mappingMemory[i] = (i < 88) ? i : 0;
 	}
-	mappingMemory[7] = FLASH_MONITOR;												// Map the last to flash memory's location.
+	mappingMemory[7] = PAGE_MONITOR;												// Map the last to flash memory's location.
 
 	for (int i = 0;i < 8*256;i++) {
 		IOWriteMemory(1,i+0xC000,character_rom[i]);
 	}
 
 	isPageCMemory = ((ramMemory[1] & 4) != 0);										// Set PageC RAM flag.
-	CPUCopyROM((FLASH_MONITOR << 13),sizeof(monitor_rom),monitor_rom); 				// Load the tiny kernal by default.
+	CPUCopyROM((PAGE_MONITOR << 13),sizeof(monitor_rom),monitor_rom); 				// Load the tiny kernal by default.
 	HWReset();																		// Reset Hardware
 
 	#ifdef EMSCRIPTEN  																// Loading in stuff alternative for emScripten
@@ -182,8 +182,10 @@ void CPUReset(void) {
 		*p++ = '\0';
 		loadAddress = -1;
 		if (p[1] == '\0') {
-			if (toupper(p[0]) == 'B') loadAddress = FLASH_BASIC << 13;
-			if (toupper(p[0]) == 'M') loadAddress = FLASH_MONITOR << 13;
+			if (toupper(p[0]) == 'B') loadAddress = PAGE_BASIC << 13;
+			if (toupper(p[0]) == 'M') loadAddress = PAGE_MONITOR << 13;
+			if (toupper(p[0]) == 'X') loadAddress = PAGE_SOURCE << 13;
+			if (toupper(p[0]) == 'S') loadAddress = PAGE_SPRITES << 13;
 		}
 		if (loadAddress < 0) {
 			if (sscanf(p,"%x",&loadAddress) != 1) exit(fprintf(stderr,"Bad argument %s\n",argumentList[i]));
@@ -210,7 +212,7 @@ void CPUReset(void) {
 	writeProtect = -1;
 	resetProcessor();																// Reset CPU
 	printf("Booting to %04x\n",bootAddress);
-	int patch = (FLASH_MONITOR << 13)+0x1FF8; 										// Where to patch.
+	int patch = (PAGE_MONITOR << 13)+0x1FF8; 										// Where to patch.
 	ramMemory[patch] = bootAddress & 0xFF;
 	ramMemory[patch+1] = bootAddress >> 8;
 }

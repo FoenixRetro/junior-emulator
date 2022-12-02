@@ -47,7 +47,7 @@ ASM = 64tass
 LMONITOR = E000
 LLOCKOUT = F000
 LBASIC = 38000
-LSOURCE = 3000
+LSOURCE = 28000
 LSPRITES = 30000
 #
 #		Expanded for command lines / makefiles.

@@ -34,7 +34,10 @@ RUNNING
 To run use jr256 <file> <file> <file> where <file> is a filename followed by an @ followed by a load address in hex. This load address is in
 the physical memory space *not* the 6502 space.
 
-e.g. ./jr256 basic.rom@b	dummy.code@3000 - the make run option/
+The address can be a single letter ; B (Basic ROM Location) X (Basic Code Location) M (Monitor Location) S (Sprites Location) - note the monitor
+loads to the equivalent of E000 to needs to be 8k in length..
+
+e.g. ./jr256 basic.rom@b	dummy.code@x - the make run option/
 
 The kernal simply initialises and jumps to $8000. So this line loads the BASIC rom to $8000 and a dummy to $3000 (because the kernal has
 no save and load at the moment, the source code is loaded into memory at boot - this is just an end of file marker)
