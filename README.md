@@ -19,11 +19,12 @@ https://github.com/paulscottrobson/junior-utilities
 Basic Repository
 https://github.com/paulscottrobson/superbasic
 
-The USB uploader over serial
-https://github.com/pweingar/FoenixMgr
-
 The original kernal source
 https://github.com/ghackwrench/OpenKERNAL
+
+Download The USB uploader over serial and extract it into same directory
+(so FoenixMgr-junior is at the same level)
+https://github.com/pweingar/FoenixMgr/tree/junior
 
 The emulator has SDL2 as a dependency. In Windows this needs to be installed into C:\SDL2 - Windows also requires mingw-gcc, python and make
 (Chocolatey is the best way of installing these)
