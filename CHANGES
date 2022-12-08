@@ -2,3 +2,7 @@ Changes:
 
 2/12/22 		Changed boot to allow for runing to other than $8000
 				Note: Now changes $FFF8/9 in case anyone is using a non standard Kernel.
+
+8/12/22 		Split out 8042 hardware code so FIFO queue can replace it.
+
+				

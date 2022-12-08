@@ -7,7 +7,7 @@ endif
 APPNAME = jr256$(APPSTEM)
 
 SOURCES = 	src$(S)sys_processor.o  framework$(S)main.o framework$(S)gfx.o framework$(S)debugger.o \
-			src$(S)sys_debug_uk101.o src$(S)hardware.o
+			src$(S)sys_debug_uk101.o src$(S)hardware.o src$(S)hw_8042.o
   
 CC = g++
 

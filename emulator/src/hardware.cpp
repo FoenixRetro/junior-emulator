@@ -24,8 +24,6 @@ struct _Queue {
 };
 
 struct _Queue keyboardQueue;
-static int keyboardDataWriteBuffer,keyboardDataReadBuffer;
-static int ibfFlag,obfFlag;
 
 static int SN76489_reg[8];										// 8 registers of 76489 (Tone/Attenuation 0..3)
 static int SN76489_current = 0;									// Currently selected register.
@@ -40,14 +38,8 @@ static void HWWriteSoundChip(int data);
 
 BYTE8 IOReadMemory(BYTE8 page,WORD16 address) {
 	if (page == 0) {
-		if (address == 0xD640) { 								// Read input buffer.
-			obfFlag = 0; 										// Clear OBF bit
-			//printf("Read %x\n",keyboardDataWriteBuffer);
-			return keyboardDataWriteBuffer; 					// Return value
-		}
-		if (address == 0xD644) { 								// Status of output 
-			int status = (ibfFlag ? 2:0) | (obfFlag ? 1 : 0); 	
-			return status;
+		if (address >= 0xD640 && address < 0xD650) {
+			return HWReadKeyboardHardware(address);
 		}
 	}
 	return ioMemory[(page << 14)|(address & 0x3FFF)];
@@ -62,19 +54,8 @@ void IOWriteMemory(BYTE8 page,WORD16 address,BYTE8 data) {
 		if (address == 0xD600 || address == 0xD610) {
 			HWWriteSoundChip(data);
 		}
-		if (address == 0xD640) { 								// Write output buffer
-			ibfFlag = -1*0; 									// Set IBF - never - we're faking it.
-			keyboardDataReadBuffer = data; 						// Put in KDRBuffer
-			//printf("Written to O/P ? %x\n",data);
-			if (data == 0xFF) HWQueueKeyboardEvent(0x00);		// If written reset announce okay.
-			if (data == 0xF4) HWQueueKeyboardEvent(0xFA); 		// Enable the keyboard			
-		}
-		if (address == 0xD644) {
-			//printf("Command %x\n",data);
-			if (data == 0xAA) HWQueueKeyboardEvent(0x55);
-			if (data == 0xAB) HWQueueKeyboardEvent(0x00);
-			if (data == 0xF4) HWQueueKeyboardEvent(0x00);
-			if (data == 0x60) {} // TODO: Enable interrupt ?
+		if (address >= 0xD640 && address < 0xD650) {
+			HWWriteKeyboardHardware(address,data);
 		}
 	}
 	ioMemory[(page << 14)|(address & 0x3FFF)] = data;
@@ -105,7 +86,7 @@ static int HWQueueRemove(struct _Queue *q) {
 
 void HWReset(void) {
 	keyboardQueue.count = 0;
-	keyboardDataWriteBuffer = keyboardDataReadBuffer = ibfFlag = obfFlag = 0;
+	HWResetKeyboardHardware();
 	for (int i = 0;i < 4;i++) {				
 		SN76489_reg[i*2+1] = 0xF;							// Set all attenuation to $F e.g. off
 		SN76489_reg[i*2+0] = 0;								// Pitch zero.
@@ -122,11 +103,10 @@ void HWReset(void) {
 
 void HWSync(void) {
 	if (keyboardQueue.count != 0) {
-		obfFlag = -1;
-		keyboardDataWriteBuffer = HWQueueRemove(&keyboardQueue);
-		//printf("Dequeue %x\n",keyboardDataWriteBuffer);
-		if ((IOReadMemory(0,0xD66C) & 0x04) == 0) {			// Bit masked zero ?
-			IOWriteMemory(0,0xD660,4); 						// Set Pending Reg Bit 2
+		int key = HWQueueRemove(&keyboardQueue);
+		HWKeyboardHardwareDequeue(key);
+		//printf("Dequeue %x\n",key);
+		if (HWCheckKeyboardInterruptEnabled()) {
 			//printf("Interrupt\n");
 			CPUInterruptMaskable();							// fire IRQ
 		}
@@ -154,7 +134,7 @@ void HWWriteDisplay(WORD16 address,BYTE8 data) {
 //									  Receive faux PS/2 Keyboard event
 // *******************************************************************************************************************************
 
-void HWQueueKeyboardEvent(int ps2code) {
+void	 HWQueueKeyboardEvent(int ps2code) {
 	//printf("queued %x\n",ps2code);
 	HWQueueInsert(&keyboardQueue,ps2code);
 }
