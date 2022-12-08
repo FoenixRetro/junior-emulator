@@ -5,13 +5,10 @@ C256Junior emulator (Windows, Mac and Linux)
 BUILDING
 ========
 
-For simplicity, it is worth loading the following 6 repositories
+To build everything you need the following 4 repositories.
 
 The emulator
 https://github.com/paulscottrobson/junior-emulator
-
-Assorted additional bits and pieces
-https://github.com/paulscottrobson/junior-utilities
 
 The tiny kernal currently used to boot the emulator
 https://github.com/paulscottrobson/junior-utilities
@@ -19,12 +16,8 @@ https://github.com/paulscottrobson/junior-utilities
 Basic Repository
 https://github.com/paulscottrobson/superbasic
 
-The original kernal source
-https://github.com/ghackwrench/OpenKERNAL
-
-Download The USB uploader over serial and extract it into same directory
-(so FoenixMgr-junior is at the same level)
-https://github.com/pweingar/FoenixMgr/tree/junior
+Command Line Foenix256 uploader
+https://github.com/pweingar/FoenixMgr
 
 The emulator has SDL2 as a dependency. In Windows this needs to be installed into C:\SDL2 - Windows also requires mingw-gcc, python and make
 (Chocolatey is the best way of installing these)
