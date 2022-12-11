@@ -134,9 +134,9 @@ void HWWriteDisplay(WORD16 address,BYTE8 data) {
 //									  Receive faux PS/2 Keyboard event
 // *******************************************************************************************************************************
 
-void	 HWQueueKeyboardEvent(int ps2code) {
-	//printf("queued %x\n",ps2code);
-	HWQueueInsert(&keyboardQueue,ps2code);
+void HWQueueKeyboardEvent(int ps2code) {
+	printf("queued %x\n",ps2code);
+	//HWQueueInsert(&keyboardQueue,ps2code);
 }
 
 // *******************************************************************************************************************************

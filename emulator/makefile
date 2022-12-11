@@ -34,3 +34,4 @@ $(APPNAME): $(SOURCES)
 
 prebuild:
 	make -B -C roms
+	make -B -C keyboard

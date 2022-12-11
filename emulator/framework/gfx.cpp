@@ -94,27 +94,11 @@ static void _GFXMainLoop(void *arg) {
 		}
 		if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {					// Handle other keys.
 			_GFXUpdateKeyRecord(event.key.keysym.sym,event.type == SDL_KEYDOWN);
-			for (int kc = 0;kc < 128;kc++) {
+			for (int kc = 0;kc < 256;kc++) {
 				if (sdlKeySymbolList[kc] == event.key.keysym.sym) {
-					if (event.type == SDL_KEYUP) kc |= 0x80;
-					HWQueueKeyboardEvent(kc);
-				}
-			}
-			//printf("%x\n",event.key.keysym.scancode);
-			int key = 0;
-			switch(event.key.keysym.sym) {
-				case SDLK_LEFT: key = 0x30;break;
-				case SDLK_RIGHT:key = 0x21;break;
-				case SDLK_UP:	key = 0x19;break;
-				case SDLK_DOWN: key = 0x31;break;
-			}
-			if (key != 0) {
-				if (event.type == SDL_KEYDOWN) {
-					HWQueueKeyboardEvent(0x1D);
-					HWQueueKeyboardEvent(key);
-				} else {
-					HWQueueKeyboardEvent(key|0x80);
-					HWQueueKeyboardEvent(0x1D|0x80);
+					if (kc >= 0x80) HWQueueKeyboardEvent(0xE0);						// Shift
+					if (event.type == SDL_KEYUP) HWQueueKeyboardEvent(0xF0);		// Release
+					HWQueueKeyboardEvent(kc & 0x7F);								// Scan code.
 				}
 			}
 		}
