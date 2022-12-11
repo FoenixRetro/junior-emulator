@@ -136,7 +136,6 @@ static inline void _Write(WORD16 address,BYTE8 data) {
 void CPUSaveArguments(int argc,char *argv[]) {
 	argumentCount = argc;
 	argumentList = argv;
-	printf("%d\n",argumentCount);
 }
 
 // *******************************************************************************************************************************
@@ -171,7 +170,8 @@ void CPUReset(void) {
 	}
 
 	isPageCMemory = ((IORegister & 4) != 0);										// Set PageC RAM flag.
-	CPUCopyROM((PAGE_MONITOR << 13),sizeof(monitor_rom),monitor_rom); 				// Load the tiny kernal by default.
+	CPUCopyROM((PAGE_MONITOR << 13),sizeof(monitor_rom),monitor_rom); 				// Load the tiny kernal by default to page 7.
+	CPUCopyROM((0x7F << 13),sizeof(monitor_rom),monitor_rom); 						// Load it also to $7F
 	HWReset();																		// Reset Hardware
 
 	#ifdef EMSCRIPTEN  																// Loading in stuff alternative for emScripten
@@ -184,33 +184,37 @@ void CPUReset(void) {
 		char szBuffer[128];
 		int loadAddress;
 		strcpy(szBuffer,argumentList[i]);											// Get buffer
-		char *p = strchr(szBuffer,'@');
-		if (p == NULL) exit(fprintf(stderr,"Bad argument %s\n",argumentList[i]));
-		*p++ = '\0';
-		loadAddress = -1;
-		if (p[1] == '\0') {
-			if (toupper(p[0]) == 'B') loadAddress = PAGE_BASIC << 13;
-			if (toupper(p[0]) == 'M') loadAddress = PAGE_MONITOR << 13;
-			if (toupper(p[0]) == 'X') loadAddress = PAGE_SOURCE << 13;
-			if (toupper(p[0]) == 'S') loadAddress = PAGE_SPRITES << 13;
-		}
-		if (loadAddress < 0) {
-			if (sscanf(p,"%x",&loadAddress) != 1) exit(fprintf(stderr,"Bad argument %s\n",argumentList[i]));
-		}
-		if (strcmp(szBuffer,"boot") != 0) {
-			printf("Loading '%s' to $%06x ..",szBuffer,loadAddress);
-			FILE *f = fopen(szBuffer,"rb");
-			if (f == NULL) exit(fprintf(stderr,"No file %s\n",argumentList[i]));
-			while (!feof(f)) {
-				if (loadAddress < MEMSIZE) {
-					ramMemory[loadAddress++] = fgetc(f);
-				}
-			}
-			fclose(f);
-			printf("Okay\n");		
+		if (strcmp(szBuffer,"flash") == 0) {
+			mappingMemory[7] = 0x7F; 												// Flash command, boot from $7F
 		} else {
-			printf("Now booting to $%04x\n",bootAddress);
-			bootAddress = loadAddress;
+			char *p = strchr(szBuffer,'@');
+			if (p == NULL) exit(fprintf(stderr,"Bad argument %s\n",argumentList[i]));
+			*p++ = '\0';
+			loadAddress = -1;
+			if (p[1] == '\0') {
+				if (toupper(p[0]) == 'B') loadAddress = PAGE_BASIC << 13;
+				if (toupper(p[0]) == 'M') loadAddress = PAGE_MONITOR << 13;
+				if (toupper(p[0]) == 'X') loadAddress = PAGE_SOURCE << 13;
+				if (toupper(p[0]) == 'S') loadAddress = PAGE_SPRITES << 13;
+			}
+			if (loadAddress < 0) {
+				if (sscanf(p,"%x",&loadAddress) != 1) exit(fprintf(stderr,"Bad argument %s\n",argumentList[i]));
+			}
+			if (strcmp(szBuffer,"boot") != 0) {
+				printf("Loading '%s' to $%06x ..",szBuffer,loadAddress);
+				FILE *f = fopen(szBuffer,"rb");
+				if (f == NULL) exit(fprintf(stderr,"No file %s\n",argumentList[i]));
+				while (!feof(f)) {
+					if (loadAddress < MEMSIZE) {
+						ramMemory[loadAddress++] = fgetc(f);
+					}
+				}
+				fclose(f);
+				printf("Okay\n");		
+			} else {
+				printf("Now booting to $%04x\n",bootAddress);
+				bootAddress = loadAddress;
+			}
 		}
 	}
 	inFastMode = 0;																	// Fast mode flag reset
