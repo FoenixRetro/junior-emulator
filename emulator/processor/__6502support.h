@@ -101,6 +101,14 @@ static BYTE8 constructFlagRegister(void) {
  if (sValue & 0x80) f |= 0x80;
  return f;
 }
+static void showDebug(WORD16 a) {
+ fprintf(stdout,"DEBUG:[PC %04x] ",pc);
+ while (CPUReadMemory(a) != 0) {
+  fprintf(stdout,"%c",CPUReadMemory(a));
+  a++;
+ }
+ fprintf(stdout,"\n");
+}
 static void executeInterrupt(WORD16 vector,BYTE8 setBreakFlag) {
  BYTE8 oldBreakFlag = breakFlag;
  Push(pc >> 8);Push(pc & 0xFF);

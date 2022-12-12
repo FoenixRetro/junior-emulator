@@ -2,8 +2,6 @@ case 0x00: /* $00 brk */
 	Cycles(7);brkCode();break;
 case 0x01: /* $01 ora (@1,x) */
 	Cycles(7);temp8 = (Fetch()+x) & 0xFF;eac = ReadWord(temp8);sValue = zValue = a = a | Read(eac);break;
-case 0x02: /* $02 stop */
-	Cycles(1);CPUExit();break;
 case 0x04: /* $04 tsb @1 */
 	Cycles(3);eac = Fetch(); trsbCode(eac,1);break;
 case 0x05: /* $05 ora @1 */
@@ -414,6 +412,8 @@ case 0xf9: /* $f9 sbc @2,y */
 	Cycles(4);FetchWord();eac = (temp16+y) & 0xFFFF;sValue = zValue = a = sub8Bit(a,Read(eac),decimalFlag);break;
 case 0xfa: /* $fa plx */
 	Cycles(4);x = sValue = zValue = Pop();break;
+case 0xfc: /* $fc dbg @2 */
+	Cycles(6);FetchWord();eac = temp16;showDebug(eac);break;
 case 0xfd: /* $fd sbc @2,x */
 	Cycles(4);FetchWord();eac = (temp16+x) & 0xFFFF;sValue = zValue = a = sub8Bit(a,Read(eac),decimalFlag);break;
 case 0xfe: /* $fe inc @2,x */

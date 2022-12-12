@@ -33,5 +33,6 @@ $(APPNAME): $(SOURCES)
 	$(CC) $(SOURCES) $(LDFLAGS) $(SDL_LDFLAGS) -o $@
 
 prebuild:
+	make -B -C processor
 	make -B -C roms
 	make -B -C keyboard

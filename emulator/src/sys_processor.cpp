@@ -70,7 +70,7 @@ static inline void _Write(WORD16 address,BYTE8 data);								// used in support 
 //											   Read and Write Inline Functions
 // *******************************************************************************************************************************
 
-#define MAPPING(a)  ((currentMap[(a) >> 13] << 13) | ((a) & 0x1FFF)) 				// Map address through mapping table.
+#define MAPPING(a)  (((currentMap[(a) >> 13] << 13) | ((a) & 0x1FFF)) & 0xFFFFF)				// Map address through mapping table.
 
 BYTE8 *CPUAccessMemory(void) {
 	return ramMemory;
@@ -257,10 +257,14 @@ static void CPUTrackCallReturn(BYTE8 opcode) {
 
 BYTE8 CPUExecuteInstruction(void) {
 	if (pc == 0xFFFF) {
+		printf("CPU $FFFF\n");
 		CPUExit();
 		return FRAME_RATE;
 	}
 	BYTE8 opcode = Fetch();															// Fetch opcode.
+
+	//printf("%04x %02x *%02x %02x %02x %02x\n",pc-1,opcode,CPUReadMemory(0x62DC),CPUReadMemory(0x4B),CPUReadMemory(0x4A),y);
+
 	if (trackingCalls != 0) { 														// Tracking for 'C'
 		if (opcode == 0x20 || opcode == 0x60) {
 			CPUTrackCallReturn(opcode);
@@ -322,6 +326,8 @@ void CPUEndRun(void) {
 }
 
 void CPUExit(void) {	
+	printf("Exiting.\n");
+
 	GFXExit();
 }
 

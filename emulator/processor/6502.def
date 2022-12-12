@@ -373,8 +373,9 @@
 //		
 // *******************************************************************************************
 
-"stop" 		1 	02
-		CPUExit()
+"dbg @O"	6 	(A:FC) 															
+		@EAC;showDebug(eac);
+
 		
 // *******************************************************************************************
 //
@@ -402,6 +403,14 @@
 :	return f;	
 :}
 
+:static void showDebug(WORD16 a) {
+:	fprintf(stdout,"DEBUG:[PC %04x] ",pc);
+:	while (CPUReadMemory(a) != 0) {
+:		fprintf(stdout,"%c",CPUReadMemory(a));
+:		a++;
+:	}	
+:	fprintf(stdout,"\n");
+:}
 
 :static void executeInterrupt(WORD16 vector,BYTE8 setBreakFlag) {
 :	BYTE8 oldBreakFlag = breakFlag;
