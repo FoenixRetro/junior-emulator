@@ -43,7 +43,7 @@ static BYTE8 inFastMode; 															// Fast mode
 static BYTE8 *currentMap;  															// Current map (8 bytes)
 static BYTE8 *currentEditMap; 														// Current edited map (may be NULL)
 static BYTE8 mappingMemory[32]; 													// Current mapped memory.
-
+static BYTE8 trackingCalls; 														// Tracking JSR/RTS ?
 static BYTE8 MMURegister;	 														// The MMU register
 static BYTE8 IORegister; 															// The I/O Register.
 
@@ -179,6 +179,7 @@ void CPUReset(void) {
 	#endif
 
 	int bootAddress = 0x8000;
+	trackingCalls = 0;
 
 	for (int i = 1;i < argumentCount;i++) {
 		char szBuffer[128];
@@ -186,6 +187,8 @@ void CPUReset(void) {
 		strcpy(szBuffer,argumentList[i]);											// Get buffer
 		if (strcmp(szBuffer,"flash") == 0) {
 			mappingMemory[7] = 0x7F; 												// Flash command, boot from $7F
+		} else if (strcmp(szBuffer,"track") == 0) {
+			trackingCalls = -1;
 		} else {
 			char *p = strchr(szBuffer,'@');
 			if (p == NULL) exit(fprintf(stderr,"Bad argument %s\n",argumentList[i]));
@@ -226,8 +229,26 @@ void CPUReset(void) {
 	ramMemory[patch+1] = bootAddress >> 8;
 }
 
+// *******************************************************************************************************************************
+//													  Invoke IRQ
+// *******************************************************************************************************************************
+
 void CPUInterruptMaskable(void) {
 	irqCode();
+}
+
+// *******************************************************************************************************************************
+//													 Track JSR/RTS
+// *******************************************************************************************************************************
+
+static void CPUTrackCallReturn(BYTE8 opcode) {
+	if (opcode == 0x20) {
+		WORD16 addr = CPUReadMemory(pc)+CPUReadMemory(pc+1) * 256;
+		fprintf(stdout,"TRACK:%04x jsr %04x\n",pc-1,addr);
+	}
+	if (opcode == 0x60) {
+		fprintf(stdout,"TRACK:%04x rts\n",pc-1);
+	}
 }
 
 // *******************************************************************************************************************************
@@ -240,6 +261,11 @@ BYTE8 CPUExecuteInstruction(void) {
 		return FRAME_RATE;
 	}
 	BYTE8 opcode = Fetch();															// Fetch opcode.
+	if (trackingCalls != 0) { 														// Tracking for 'C'
+		if (opcode == 0x20 || opcode == 0x60) {
+			CPUTrackCallReturn(opcode);
+		}
+	}
 	switch(opcode) {																// Execute it.
 		#include "6502/__6502opcodes.h"
 	}

@@ -39,6 +39,10 @@ no save and load at the moment, the source code is loaded into memory at boot - 
 It is possible to override the start address by having boot@1000 (say) in the line - which will cause it to jump to $1000. This address is in
 the 6502 space.
 
+To track calls and returns use the command line option 'track'
+
+To run from flash, use the command line option 'flash'
+
 STATE
 =====
 
