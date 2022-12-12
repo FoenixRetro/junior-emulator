@@ -135,8 +135,7 @@ void HWWriteDisplay(WORD16 address,BYTE8 data) {
 // *******************************************************************************************************************************
 
 void HWQueueKeyboardEvent(int ps2code) {
-	printf("queued %x\n",ps2code);
-	//HWQueueInsert(&keyboardQueue,ps2code);
+	HWQueueInsert(&keyboardQueue,ps2code);
 }
 
 // *******************************************************************************************************************************
