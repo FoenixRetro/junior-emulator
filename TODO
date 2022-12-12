@@ -1,3 +1,1 @@
 CHANGES
-	- allow queuing of keyboard structures.
-	- new hardware implementation replacing hw_8042.cpp
