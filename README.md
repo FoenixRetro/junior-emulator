@@ -19,6 +19,9 @@ https://github.com/paulscottrobson/superbasic
 Command Line Foenix256 uploader
 https://github.com/pweingar/FoenixMgr
 
+Boot screen info
+https://github.com/WartyMN/Foenix-F256JR-bootscreens
+
 The emulator has SDL2 as a dependency. In Windows this needs to be installed into C:\SDL2 - Windows also requires mingw-gcc, python and make
 (Chocolatey is the best way of installing these)
 
