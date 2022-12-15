@@ -5,4 +5,4 @@ Changes:
 
 8/12/22 		Split out 8042 hardware code so FIFO queue can replace it.
 
-				
+15/12/22 		Stopped duplicate Key messages - was sending both arrow key and keypad key ?				

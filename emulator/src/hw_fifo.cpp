@@ -56,6 +56,7 @@ BYTE8 HWReadKeyboardHardware(WORD16 address) {
 	}
 	if (address == 0xD642 && queueSize > 0) {
 		int head = fifoQueue[0];
+		//printf("Popped : %x\n",head);
 		for (int i = 0;i < queueSize;i++) {
 			fifoQueue[i] = fifoQueue[i+1];
 		}

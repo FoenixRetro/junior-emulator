@@ -96,9 +96,11 @@ static void _GFXMainLoop(void *arg) {
 			_GFXUpdateKeyRecord(event.key.keysym.sym,event.type == SDL_KEYDOWN);
 			for (int kc = 0;kc < 256;kc++) {
 				if (sdlKeySymbolList[kc] == event.key.keysym.sym) {
-					if (kc >= 0x80) HWQueueKeyboardEvent(0xE0);						// Shift
-					if (event.type == SDL_KEYUP) HWQueueKeyboardEvent(0xF0);		// Release
-					HWQueueKeyboardEvent(kc & 0x7F);								// Scan code.
+					if (kc != 0x6B && kc != 0x72 && kc != 0x74 && kc != 0x75) {
+						if (kc >= 0x80) HWQueueKeyboardEvent(0xE0);					// Shift
+						if (event.type == SDL_KEYUP) HWQueueKeyboardEvent(0xF0);	// Release
+						HWQueueKeyboardEvent(kc & 0x7F);							// Scan code.
+					}
 				}
 			}
 		}
