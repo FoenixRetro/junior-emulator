@@ -320,6 +320,22 @@ int  GFXIsKeyPressed(int character) {
 
 // *******************************************************************************************************************************
 //
+//													Return stick status (Button Right Left Down Up)
+//
+// *******************************************************************************************************************************
+
+int GFXReadJoystick0(void) {
+	int joystickStatus = 0;
+	if (GFXIsKeyPressed('K')) joystickStatus |= 1;
+	if (GFXIsKeyPressed('M')) joystickStatus |= 2;
+	if (GFXIsKeyPressed('Z')) joystickStatus |= 4;
+	if (GFXIsKeyPressed('X')) joystickStatus |= 8;
+	if (GFXIsKeyPressed('L')) joystickStatus |= 16;
+	return joystickStatus;
+}
+
+// *******************************************************************************************************************************
+//
 //												Convert character to ASCII
 //
 //	UK Keyboard layout, will probably behave bizarrely elsewhere.

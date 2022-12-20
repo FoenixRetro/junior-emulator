@@ -41,6 +41,9 @@ BYTE8 IOReadMemory(BYTE8 page,WORD16 address) {
 		if (address >= 0xD640 && address < 0xD650) {
 			return HWReadKeyboardHardware(address);
 		}
+		if (address == 0xDC00) {
+			return GFXReadJoystick0();
+		}
 	}
 	return ioMemory[(page << 14)|(address & 0x3FFF)];
 }
@@ -66,7 +69,6 @@ void IOWriteMemory(BYTE8 page,WORD16 address,BYTE8 data) {
 // *******************************************************************************************************************************
 
 static void HWQueueInsert(struct _Queue *q,int value) {
-	//printf("Insert %x\n",value);
 	if (q->count < QSIZE) q->queue[q->count++] = value;
 }
 
