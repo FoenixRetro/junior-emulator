@@ -5,7 +5,7 @@ include ../../documents/common.make
 endif
 
 
-all: 
+all:
 	python process.py
 	$(CCOPY) *.h ..$(S)6502
 
