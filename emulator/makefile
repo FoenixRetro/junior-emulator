@@ -15,9 +15,6 @@ CC = g++
 
 all: emulator
 
-run: emulator 
-	.$(S)$(APPNAME) basic.rom@b
-
 emulator: prebuild $(APPNAME)
 	$(CCOPY) $(APPNAME) ..$(S)bin
 	
