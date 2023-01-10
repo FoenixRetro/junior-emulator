@@ -23,8 +23,9 @@ New Kernel (for real hardware)
 
 https://github.com/ghackwrench/F256_Jr_Kernel_DOS
 
-Boot screen info (probably not necessary)
+(Only required for rebuilding the title screen and uploaded font)
 https://github.com/WartyMN/Foenix-F256JR-bootscreens
+https://github.com/WartyMN/Foenix-Fonts
 
 The emulator has SDL2 as a dependency. In Windows this needs to be installed into C:\SDL2 - Windows also requires mingw-gcc, python and make
 (Chocolatey is the best way of installing these)
