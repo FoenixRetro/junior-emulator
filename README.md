@@ -61,6 +61,8 @@ Things that are implemented (mostly partially)
 - Bitmap
 - Sprites
 - Memory LUT
+- Random number generator
+- DMA
 
 DEBUGGER
 ========

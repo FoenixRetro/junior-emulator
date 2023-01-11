@@ -31,6 +31,7 @@ static int SN76489_current = 0;									// Currently selected register.
 static BYTE8 ioMemory[4*0x4000];
 
 static void HWWriteSoundChip(int data);
+static void IODMATransfer(BYTE8 *dmaReg,BYTE8 *ramMemory);
 
 // *******************************************************************************************************************************
 //												Read from I/O Space
@@ -40,6 +41,9 @@ BYTE8 IOReadMemory(BYTE8 page,WORD16 address) {
 	if (page == 0) {
 		if (address >= 0xD640 && address < 0xD650) {
 			return HWReadKeyboardHardware(address);
+		}
+		if (address == 0xD6A5 || address == 0xD6A4) {
+			return random() & 0xFF;
 		}
 		if (address == 0xDC00) {
 			return GFXReadJoystick0();
@@ -62,6 +66,10 @@ void IOWriteMemory(BYTE8 page,WORD16 address,BYTE8 data) {
 		}
 	}
 	ioMemory[(page << 14)|(address & 0x3FFF)] = data;
+	if (page == 0 && address == 0xDF00 && (data & 0x80) != 0) {
+		IODMATransfer(ioMemory+(0xDF00 & 0x3FFF),CPUAccessMemory());
+		IOWriteMemory(0,0xDF01,0);
+	}
 }
 
 // *******************************************************************************************************************************
@@ -172,4 +180,33 @@ static void HWWriteSoundChip(int data) {
 		GFXSetFrequency(endFreq,gChannel);
 	}
 	//printf("Change: %d %d\n",endFreq,startFreq);
+}
+
+// *******************************************************************************************************************************
+//														DMA Transfer
+// *******************************************************************************************************************************
+
+static void IODMATransfer(BYTE8 *dmaReg,BYTE8 *ramMemory) {
+	int src = (dmaReg[4]+(dmaReg[5] << 8)+(dmaReg[6] << 16)) & 0x3FFFF;
+	int tgt = (dmaReg[8]+(dmaReg[9] << 8)+(dmaReg[10] << 16)) & 0x3FFFF;
+	int fillByte = dmaReg[1];
+	int isFill = (dmaReg[0] & 0x04) != 0;
+
+	if ((dmaReg[0] & 0x02) == 0) {				/* 1D operation */
+		int count = (dmaReg[12]+(dmaReg[13] << 8)+(dmaReg[14] << 16)) & 0x3FFFF;
+		while (count-- > 0) {
+			ramMemory[tgt & 0x3FFFF] = isFill ? fillByte : ramMemory[src & 0x3FFFF];
+			tgt++;src++;
+		}
+	} else { 									/* 2D operation */
+		int width = dmaReg[12]+(dmaReg[13] << 8);
+		int height = dmaReg[14]+(dmaReg[15] << 8);
+		int strideSrc = dmaReg[16]+(dmaReg[17] << 8);
+		int strideTgt = dmaReg[18]+(dmaReg[19] << 8);
+		for (int w = 0;w < width;w++) {
+			for (int h = 0;h < height;h++) {
+				ramMemory[(tgt+w+h*strideTgt) & 0x3FFFF] = isFill ? fillByte : ramMemory[(src+w+h*strideSrc) & 0x3FFFF];
+			}
+		}
+	}
 }
