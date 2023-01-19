@@ -178,7 +178,7 @@ void CPUReset(void) {
 	#include "loaders.h" 															// Partly because preload storage does not work :(
 	#endif
 
-	int bootAddress = 0x8000;
+	int bootAddress = 0x8040;
 	trackingCalls = 0;
 
 	for (int i = 1;i < argumentCount;i++) {
