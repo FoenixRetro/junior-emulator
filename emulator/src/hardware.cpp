@@ -46,7 +46,7 @@ BYTE8 IOReadMemory(BYTE8 page,WORD16 address) {
 			return random() & 0xFF;
 		}
 		if (address == 0xDC00) {
-			return GFXReadJoystick0();
+			return GFXReadJoystick0() ^ 0xFF;
 		}
 	}
 	return ioMemory[(page << 14)|(address & 0x3FFF)];
