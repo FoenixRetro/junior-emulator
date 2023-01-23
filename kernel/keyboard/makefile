@@ -4,7 +4,6 @@ else
 include ../../documents/common.make
 endif
 
-
 all: 
-	$(CCOPY) ..$(S)..$(S)bin$(S)monitor.rom .
-	python export.py
+	python scancodes.py >..$(S)include$(S)ps2convert.inc
+	$(CCOPY) ps2.data ..$(S)..$(S)emulator$(S)keyboard

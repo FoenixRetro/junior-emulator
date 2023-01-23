@@ -8,3 +8,5 @@ Changes:
 15/12/22 		Stopped duplicate Key messages - was sending both arrow key and keypad key ?				
 
 11/1/23 		Added support for DMA and RNG.
+
+23/1/23 		Included kernel in this Repo, losing junior-tinykernel.
