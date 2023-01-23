@@ -41,6 +41,7 @@ Things that are implemented (mostly partially)
 - Memory LUT
 - Random number generator
 - DMA
+- Sound (under Windows, it doesn't switch off for some reason)
 
 DEBUGGER
 ========

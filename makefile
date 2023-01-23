@@ -13,5 +13,4 @@ emulator:
 	make -C emulator		
 
 run:emulator
-	#$(CCOPY) ..$(S)superbasic$(S)bin$(S)basic.rom .
 	.$(S)bin$(S)jr256$(APPSTEM) basic.rom@b
