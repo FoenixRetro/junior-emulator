@@ -5,11 +5,11 @@ C256Junior emulator (Windows, Mac and Linux)
 BUILDING
 ========
 
-The emulator has SDL2 *development* as a dependency. In Windows this needs to be for mingw and x64 (not tested with anything else) installed into C:\SDL2 - 
-so there is an C:\sdl2\include c:\sdl2\bin etc.
+The emulator has SDL2 *development* as a dependency. In Windows this needs to be for mingw and the x64 directory (not tested with anything else) 
+installed into C:\SDL2 - so there is an C:\sdl2\include c:\sdl2\bin c:\sdl2\lib and c:\sdl2\share (you can tweak this directory in documents/common.make)
 
-Also required are 64tass mingw-gcc, python and make (not mingw32-make)
-(Chocolatey is the best way of installing these under Windows)
+Also required are mingw-gcc, python and make (not mingw32-make) (Chocolatey is the best way of installing these under Windows) and 64tass which has to 
+be installed by downloading and copying the executable somewhere.
 
 RUNNING
 =======

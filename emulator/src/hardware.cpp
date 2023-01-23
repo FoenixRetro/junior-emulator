@@ -43,7 +43,7 @@ BYTE8 IOReadMemory(BYTE8 page,WORD16 address) {
 			return HWReadKeyboardHardware(address);
 		}
 		if (address == 0xD6A5 || address == 0xD6A4) {
-			return random() & 0xFF;
+			return rand() & 0xFF;
 		}
 		if (address == 0xDC00) {
 			return GFXReadJoystick0() ^ 0xFF;
