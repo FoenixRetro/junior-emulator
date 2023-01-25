@@ -163,9 +163,14 @@ void DBGXRender(int *address,int showDisplay) {
 			}		
 		}
 		//
-		//		Draw text mode, possibly overlaid.
+		//		Draw text mode, possibly overlaid and scaled
 		//
-		int height = (IOReadMemory(0,0xD001) & 1) ? 50 : 60;
+		int szByte = IOReadMemory(0,0xD001);
+		int height = (szByte & 1) ? 50 : 60;
+
+		if (szByte & 2) { xs = xs / 2;xSize = xSize * 2; }
+		if (szByte & 4) { ys = ys / 2;ySize = ySize * 2; }
+
 		if (ctrl & 1) {
 			if ((IOReadMemory(0,0xD010) & 1) != 0) {
 				xCursor = IOReadMemory(0,0xD014);

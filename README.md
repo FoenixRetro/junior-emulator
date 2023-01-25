@@ -34,7 +34,7 @@ STATE
 
 Things that are implemented (mostly partially)
 
-- Text display
+- Text display (including H/V scaling)
 - Keyboard and Interrupts
 - Bitmap
 - Sprites
