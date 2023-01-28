@@ -1,7 +1,7 @@
 
 ; 64tass Turbo Assembler Macro V1.58.2974? listing file
-; 64tass "-D MONITOR_ADDRESS=\$E000" "-D LOCKOUT_ADDRESS=\$F000" "-D BASIC_ADDRESS=\$38000" "-D SOURCE_ADDRESS=\$28000" "-D SPRITE_ADDRESS=\$30000" -q -c -b -o monitor.rom -L output/newmonitor.lst newmonitor.asm
-; Wed Jan 25 17:03:42 2023
+; 64tass "-D MONITOR_ADDRESS=\$E000" "-D LOCKOUT_ADDRESS=\$F000" "-D BASIC_ADDRESS=\$34000" "-D SOURCE_ADDRESS=\$28000" "-D SPRITE_ADDRESS=\$30000" -q -c -b -o monitor.rom -L output/newmonitor.lst newmonitor.asm
+; Sat Jan 28 09:42:31 2023
 
 ;Offset	;Hex		;Monitor	;Source
 
@@ -9,7 +9,7 @@
 
 =$e000					 MONITOR_ADDRESS=$E000
 =$f000					 LOCKOUT_ADDRESS=$F000
-=$38000					 BASIC_ADDRESS=$38000
+=$34000					 BASIC_ADDRESS=$34000
 =$28000					 SOURCE_ADDRESS=$28000
 =$30000					 SPRITE_ADDRESS=$30000
 
@@ -1075,7 +1075,7 @@
 .e92b	95 08		sta $08,x		sta 	8,x
 .e92d	ca		dex			dex
 .e92e	10 fa		bpl $e92a		bpl 	_InitMMU3
-.e930	a9 1c		lda #$1c		lda 	#BASIC_ADDRESS >> 13 				; map BASIC ROM into slots 4 & 5, consecutive pages
+.e930	a9 1a		lda #$1a		lda 	#BASIC_ADDRESS >> 13 				; map BASIC ROM into slots 4 & 5, consecutive pages
 .e932	85 0c		sta $0c			sta 	12
 .e934	1a		inc a			inc 	a
 .e935	85 0d		sta $0d			sta 	13
