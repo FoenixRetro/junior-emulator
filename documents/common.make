@@ -19,6 +19,7 @@ LDFLAGS = -lmingw32
 SDL_LDFLAGS = -L$(SDLDIR)$(S)lib -lSDL2 -lSDL2main -static-libstdc++ -static-libgcc
 OSNAME = windows
 EXTRAFILES = libwinpthread-1.dll  SDL2.dll
+PYTHON = python
 else
 CCOPY = cp
 CDEL = rm -f
@@ -32,6 +33,7 @@ CXXFLAGS = $(SDL_CFLAGS) -O2 -DLINUX  -fmax-errors=5 -I.
 LDFLAGS = 
 OSNAME = linux
 EXTRAFILES = 
+PYTHON = python3
 endif
 #
 #		Root directory

@@ -6,7 +6,7 @@ endif
 
 
 all:
-	python process.py
+	$(PYTHON) process.py
 	$(CCOPY) *.h ..$(S)6502
 
 	

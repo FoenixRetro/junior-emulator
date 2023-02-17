@@ -7,4 +7,4 @@ endif
 
 all: 
 	$(CCOPY) ..$(S)..$(S)bin$(S)monitor.rom .
-	python export.py
+	$(PYTHON) export.py
