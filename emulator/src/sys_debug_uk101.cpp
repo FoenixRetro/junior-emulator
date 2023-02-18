@@ -28,6 +28,7 @@ static int renderCount = 0;
 
 static void DGBXRenderBitmap(int base,int x1,int y1,int xs,int ys);
 static void DGBXRenderSprite(int addr,int x1,int y1,int xs,int ys);
+static void DGBXRenderTilemap8(int base,int x1,int y1,int xs,int ys);
 
 // *******************************************************************************************************************************
 //											This renders the debug screen
@@ -172,6 +173,14 @@ void DBGXRender(int *address,int showDisplay) {
 		r.x = x1;r.y = y1;r.w = xs*xSize*8;r.h=ys*ySize*8;
 		GFXRectangle(&r,(ctrl & 4) ? DBGXGetColour(0,0xD00D,0) : 0);
 		//
+		//		Tilemaps if Tile on. 
+		//
+		if ((ctrl & 0x14) == 0x14) {
+			if (IOReadMemory(0,0xD200) & 1) DGBXRenderTilemap8(0xD200,x1,y1,xSize*2,ySize*2);
+			if (IOReadMemory(0,0xD20C) & 1) DGBXRenderTilemap8(0xD20C,x1,y1,xSize*2,ySize*2);
+			if (IOReadMemory(0,0xD218) & 1) DGBXRenderTilemap8(0xD218,x1,y1,xSize*2,ySize*2);
+		}
+		//
 		//		Bitmaps if Bitmap & Graphic on.
 		//
 		if ((ctrl & 0x0C) == 0x0C) {
@@ -181,7 +190,7 @@ void DBGXRender(int *address,int showDisplay) {
 		//
 		//		Draw sprites
 		//
-		if ((ctrl & 0x20) == 0x20) {
+		if ((ctrl & 0x24) == 0x24) {
 			for (int s = 0;s < 64;s++) {
 				if (IOReadMemory(0,0xD900+s*8) & 0x01) {
 					DGBXRenderSprite(0xD900+s*8,x1,y1,xSize*2,ySize*2);
@@ -288,6 +297,37 @@ static void DGBXRenderSprite(int addr,int x1,int y1,int xs,int ys) {
 				GFXRectangle(&rc,_DBGXGetRGB(lut,colour));
 			}
 			rc.x += rc.w;			
+		}
+	}
+}
+
+// *******************************************************************************************************************************
+//
+//												Render one tilemap (8x8)
+//
+// *******************************************************************************************************************************
+
+static void DGBXRenderTilemap8(int base,int x1,int y1,int xs,int ys) {
+	SDL_Rect rc;
+	int xScroll = IOReadMemory(0,base+0x8) & 0x7;
+	int yScroll = IOReadMemory(0,base+0xA) & 0x7;
+	int xSize = IOReadMemory(0,base+4);
+	int ySize = IOReadMemory(0,base+6);
+	int mapAddress = IOReadMemory(0,base+1)+(IOReadMemory(0,base+2) << 8)+((IOReadMemory(0,base+3) & 0x03) << 16);
+	int xTilePos = (IOReadMemory(0,base+8) >> 4)+(IOReadMemory(0,base+9) << 4);
+	int yTilePos = (IOReadMemory(0,base+0xA) >> 4)+(IOReadMemory(0,base+0xB) << 4);
+	//printf("$%x %d,%d %d,%d %d %d\n",mapAddress,xSize,ySize,xScroll,yScroll,xTilePos,yTilePos);
+	for (int xTile = xTilePos-1;xTile <= xTilePos+40;xTile++) {
+		for (int yTile = yTilePos-1;yTile <= yTilePos+30;yTile++) {
+			if (xTile >= 0 && yTile >= 0 && xTile < xSize && yTile < ySize) {
+				BYTE8 *tileData = CPUAccessMemory()+mapAddress+(xTile+yTile*xSize)*2;
+				int tileNumber = tileData[0];
+				int tileAttrib = tileData[1];
+				rc.x = (xTile-xTilePos)*8-xScroll;rc.x = rc.x * xs + x1;
+				rc.y = (yTile-yTilePos)*8-yScroll;rc.y = rc.y * ys + y1;
+				rc.w = xs*8;rc.h = ys*8;
+				if (tileNumber != 0) GFXRectangle(&rc,0xFF0);
+			}
 		}
 	}
 }
