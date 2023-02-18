@@ -35,6 +35,12 @@ static void DGBXRenderSprite(int addr,int x1,int y1,int xs,int ys);
 
 static const char *labels[] = { "A","X","Y","PC","SP","SR","CY","N","V","B","D","I","Z","C", NULL };
 
+// *******************************************************************************************************************************
+//
+//										Convert Colour from LUT to RGB
+//
+// *******************************************************************************************************************************
+
 int DBGXGetColour(int page,int base,int colour) {
 	base = base + colour * 4;
 	int blue = IOReadMemory(page,base+0) >> 4;
@@ -43,8 +49,27 @@ int DBGXGetColour(int page,int base,int colour) {
 	return (red << 8) | (green << 4) | blue;
 }
 
-void DBGXRender(int *address,int showDisplay) {
+// *******************************************************************************************************************************
+//
+//												Cache colour conversions
+//
+// *******************************************************************************************************************************
 
+static int colourCache[1024]; 														// Cache of converted colours (main LUT)
+
+static void _DBGXResetColourCache(void) {
+	for (int i = 0;i < 1024;i++) colourCache[i] = -1;
+}
+
+static int _DBGXGetRGB(int lut,int colour) {
+	int id = (lut << 8) | colour;
+	if (colourCache[id] == -1) {
+		colourCache[id] = DBGXGetColour(1,0xD000+lut*0x400,colour);
+	}
+	return colourCache[id];
+}
+
+void DBGXRender(int *address,int showDisplay) {
 	int n = 0;
 	char buffer[32];
 	CPUSTATUS *s = CPUGetStatus();
@@ -134,6 +159,7 @@ void DBGXRender(int *address,int showDisplay) {
 		int y1 = WIN_HEIGHT/2-ys*ySize*8/2;
 		int cursorPos = 0;
 		int ctrl = IOReadMemory(0,0xD000);
+		_DBGXResetColourCache();
 		SDL_Rect r;
 		//
 		//		Do border
@@ -222,45 +248,44 @@ static void DGBXRenderBitmap(int base,int x1,int y1,int xs,int ys) {
 	int height = (IOReadMemory(0,0xD001) & 1) ? 200 : 240;
 	int address = IOReadMemory(0,base+1)+(IOReadMemory(0,base+2) << 8)+(IOReadMemory(0,base+3) << 16);
 	address &= 0x3FFFF;																			// 22 bit bitmap addres
-	int lut = ((IOReadMemory(0,base) >> 1) & 3) * 0x400+0xD000; 								// Graphics LUT in page 1.
+	int lut = (IOReadMemory(0,base) >> 1) & 3; 													// Graphics LUT in page 1.
 	BYTE8 *bitmap = CPUAccessMemory()+address;
-	int colourCache[256]; 																		// Cache of converted colours.
-	for (int i = 0;i < 256;i++) colourCache[i] = -1;
 
 	for (int y = 0;y < height;y++) {
 		SDL_Rect rc;rc.x = x1;rc.y = y1 + y * ys;rc.w = xs;rc.h = ys;
 		for (int x = 0;x < 320;x++) {
 			int colour = *bitmap++;
-			//if (x == 0 && y == 0) printf("B:%d %d\n",colour,lut);
-			if (colourCache[colour] < 0) colourCache[colour] = DBGXGetColour(1,lut,colour);
 			if (colour != 0) {
-				GFXRectangle(&rc,colourCache[colour]);
+				GFXRectangle(&rc,_DBGXGetRGB(lut,colour));
 			}
 			rc.x += rc.w;
 		}
 	}
 }
 
+// *******************************************************************************************************************************
+//
+//													Render one sprite
+//
+// *******************************************************************************************************************************
+
 static void DGBXRenderSprite(int addr,int x1,int y1,int xs,int ys) {
 	int sprGraphic = IOReadMemory(0,addr+1)+													// Sprite address
 							(IOReadMemory(0,addr+2) << 8)+(IOReadMemory(0,addr+3) << 16);
 	int size = 8*(4-((IOReadMemory(0,addr) >> 5) & 3));											// Size
-	int lut = ((IOReadMemory(0,addr) >> 2) & 3) * 0x400+0xD000; 								// Graphics LUT in page 1.
+	int lut = (IOReadMemory(0,addr) >> 2) & 3; 													// Graphics LUT in page 1.
 	int xPos = IOReadMemory(0,addr+4)+(IOReadMemory(0,addr+5) << 8);							// Position
 	int yPos = IOReadMemory(0,addr+6)+(IOReadMemory(0,addr+7) << 8);							
 	//printf("SP:%x %x %d %d %x %x\n",addr,sprGraphic,size,lut,xPos,yPos);
 	BYTE8 *bitmap = CPUAccessMemory()+sprGraphic;
-	int colourCache[256]; 																		// Cache of converted colours.
-	for (int i = 0;i < 256;i++) colourCache[i] = -1;
 
 	for (int y = 0;y < size;y++) {
 		SDL_Rect rc;rc.x = x1+(xPos-32)*xs;rc.y = y1+(yPos+y-32) * ys;rc.w = xs;rc.h = ys;
 		for (int x = 0;x < size;x++) {
 			int colour = *bitmap++;
 			//if (x == 0 && y == 0) printf("S:%d %d\n",colour,lut);
-			if (colourCache[colour] < 0) colourCache[colour] = DBGXGetColour(1,lut,colour);
 			if (colour != 0) {
-				GFXRectangle(&rc,colourCache[colour]);
+				GFXRectangle(&rc,_DBGXGetRGB(lut,colour));
 			}
 			rc.x += rc.w;			
 		}

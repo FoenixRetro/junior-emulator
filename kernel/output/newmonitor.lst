@@ -1,7 +1,7 @@
 
 ; 64tass Turbo Assembler Macro V1.58.2974? listing file
-; 64tass "-D MONITOR_ADDRESS=\$E000" "-D LOCKOUT_ADDRESS=\$F000" "-D BASIC_ADDRESS=\$34000" "-D SOURCE_ADDRESS=\$28000" "-D SPRITE_ADDRESS=\$30000" -q -c -b -o monitor.rom -L output/newmonitor.lst newmonitor.asm
-; Mon Feb  6 13:49:02 2023
+; 64tass "-D MONITOR_ADDRESS=\$E000" "-D LOCKOUT_ADDRESS=\$F000" "-D BASIC_ADDRESS=\$34000" "-D SOURCE_ADDRESS=\$28000" "-D SPRITE_ADDRESS=\$30000" "-D LTILEMAP_ADDRESS=\$24000" "-D LTILEIMAGES_ADDRESS=\$26000" -q -c -b -o monitor.rom -L output/newmonitor.lst newmonitor.asm
+; Wed Feb 15 18:01:43 2023
 
 ;Offset	;Hex		;Monitor	;Source
 
@@ -12,6 +12,8 @@
 =$34000					 BASIC_ADDRESS=$34000
 =$28000					 SOURCE_ADDRESS=$28000
 =$30000					 SPRITE_ADDRESS=$30000
+=$24000					 LTILEMAP_ADDRESS=$24000
+=$26000					 LTILEIMAGES_ADDRESS=$26000
 
 ;******  Processing input file: newmonitor.asm
 
