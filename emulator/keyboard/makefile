@@ -5,4 +5,4 @@ include ../../documents/common.make
 endif
 
 all: 
-	python ps2codes.py >..$(S)include$(S)sdltops2.h
+	$(PYTHON) ps2codes.py >..$(S)include$(S)sdltops2.h
