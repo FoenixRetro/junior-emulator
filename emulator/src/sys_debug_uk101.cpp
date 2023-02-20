@@ -286,7 +286,7 @@ static void DGBXRenderSprite(int addr,int x1,int y1,int xs,int ys) {
 	int xPos = IOReadMemory(0,addr+4)+(IOReadMemory(0,addr+5) << 8);							// Position
 	int yPos = IOReadMemory(0,addr+6)+(IOReadMemory(0,addr+7) << 8);							
 	//printf("SP:%x %x %d %d %x %x\n",addr,sprGraphic,size,lut,xPos,yPos);
-	BYTE8 *bitmap = CPUAccessMemory()+sprGraphic;
+	BYTE8 *bitmap = CPUAccessMemory()+(sprGraphic & 0x3FFFF);
 
 	for (int y = 0;y < size;y++) {
 		SDL_Rect rc;rc.x = x1+(xPos-32)*xs;rc.y = y1+(yPos+y-32) * ys;rc.w = xs;rc.h = ys;
@@ -314,6 +314,7 @@ static void DGBXRenderTilemap8(int base,int x1,int y1,int xs,int ys) {
 	int xSize = IOReadMemory(0,base+4);
 	int ySize = IOReadMemory(0,base+6);
 	int mapAddress = IOReadMemory(0,base+1)+(IOReadMemory(0,base+2) << 8)+((IOReadMemory(0,base+3) & 0x03) << 16);
+	mapAddress &= 0x3FFFF;
 	int xTilePos = (IOReadMemory(0,base+8) >> 4)+(IOReadMemory(0,base+9) << 4);
 	int yTilePos = (IOReadMemory(0,base+0xA) >> 4)+(IOReadMemory(0,base+0xB) << 4);
 	//printf("$%x %d,%d %d,%d %d %d\n",mapAddress,xSize,ySize,xScroll,yScroll,xTilePos,yTilePos);
@@ -322,11 +323,26 @@ static void DGBXRenderTilemap8(int base,int x1,int y1,int xs,int ys) {
 			if (xTile >= 0 && yTile >= 0 && xTile < xSize && yTile < ySize) {
 				BYTE8 *tileData = CPUAccessMemory()+mapAddress+(xTile+yTile*xSize)*2;
 				int tileNumber = tileData[0];
+				//if (tileNumber != 0) tileNumber = 2;
 				int tileAttrib = tileData[1];
-				rc.x = (xTile-xTilePos)*8-xScroll;rc.x = rc.x * xs + x1;
-				rc.y = (yTile-yTilePos)*8-yScroll;rc.y = rc.y * ys + y1;
-				rc.w = xs*8;rc.h = ys*8;
-				if (tileNumber != 0) GFXRectangle(&rc,0xFF0);
+				int lut =(tileAttrib >> 3) & 7;
+
+				int tileSet = tileAttrib & 7;
+				int ta = tileSet * 4 + 0xD280;
+				int addr = IOReadMemory(0,ta)+(IOReadMemory(0,ta+1) << 8)+(IOReadMemory(0,ta+2) << 16);
+				addr &= 0x3FFFF;
+				BYTE8 *imageData = CPUAccessMemory()+addr+tileNumber * 8 * 8;
+				for (int yr = 0;yr < 8;yr++) {
+					rc.x = (xTile-xTilePos)*8-xScroll;rc.x = rc.x * xs + x1;
+					rc.y = (yTile-yTilePos)*8-yScroll+yr;rc.y = rc.y * ys + y1;
+					rc.w = xs;rc.h = ys;
+					for (int xr = 0;xr < 8;xr++) {
+						int col = *imageData++;
+						if (col != 0) GFXRectangle(&rc,_DBGXGetRGB(lut,col));
+						rc.x += rc.w;
+					}
+				}	
+
 			}
 		}
 	}
