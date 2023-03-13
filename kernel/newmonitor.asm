@@ -37,7 +37,10 @@ IOPageRegister = 1 							; select I/O Page
 	.include "include/interrupt.inc"
 
  	*= $E000
-
+ 	nop
+ 	*= $E008
+ 	.text "(Fake)",0
+ 	
 	.include "src/hardware.asm"
 	.include "include/ps2convert.inc"
 	.include "src/init_graphics_palettes.asm"
