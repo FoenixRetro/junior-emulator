@@ -14,15 +14,15 @@ include environment/system.make
 all:kernel_target emulator_target
 
 kernel_target:
-	make -C kernel all
+	$(MAKE) -C kernel all
 
 emulator_target: 
-	make -C emulator all		
+	$(MAKE) -C emulator all		
 
 run:kernel_target emulator_target
 	$(BUILDDIR)jr256$(APPSTEM) basic.rom@b
 
 clean:
 	rm build/*
-	make -C emulator clean
-	make -C kernel clean
+	$(MAKE) -C emulator clean
+	$(MAKE) -C kernel clean
