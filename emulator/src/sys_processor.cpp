@@ -64,7 +64,7 @@ static BYTE8 IORegister; 															// The I/O Register.
 static inline BYTE8 _Read(WORD16 address);											// Need to be forward defined as 
 static inline void _Write(WORD16 address,BYTE8 data);								// used in support functions.
 
-#include "6502/__6502support.h"
+#include "processor/__6502support.h"
 
 // *******************************************************************************************************************************
 //											   Read and Write Inline Functions
@@ -150,7 +150,7 @@ void CPUCopyROM(int address,int size,const BYTE8 *data) {
 //														Reset the CPU
 // *******************************************************************************************************************************
 
-#include "roms/monitor_rom.h"
+#include "roms/__monitor_rom.h"
 #include "roms/character_rom.h"
 
 static void CPULoadChunk(FILE *f,BYTE8* memory,WORD16 address,int count);
@@ -170,8 +170,8 @@ void CPUReset(void) {
 	}
 
 	isPageCMemory = ((IORegister & 4) != 0);										// Set PageC RAM flag.
-	CPUCopyROM((PAGE_MONITOR << 13),sizeof(monitor_rom),monitor_rom); 				// Load the tiny kernal by default to page 7.
-	CPUCopyROM((0x7F << 13),sizeof(monitor_rom),monitor_rom); 						// Load it also to $7F
+	CPUCopyROM((PAGE_MONITOR << 13),sizeof(__monitor_rom),__monitor_rom); 			// Load the tiny kernal by default to page 7.
+	CPUCopyROM((0x7F << 13),sizeof(__monitor_rom),__monitor_rom); 		       		// Load it also to $7F
 	HWReset();																		// Reset Hardware
 
 	#ifdef EMSCRIPTEN  																// Loading in stuff alternative for emScripten
@@ -271,7 +271,7 @@ BYTE8 CPUExecuteInstruction(void) {
 		}
 	}
 	switch(opcode) {																// Execute it.
-		#include "6502/__6502opcodes.h"
+		#include "processor/__6502opcodes.h"
 	}
 	int cycleMax = inFastMode ? CYCLES_PER_FRAME*10:CYCLES_PER_FRAME; 		
 	if (cycles < cycleMax) return 0;												// Not completed a frame.

@@ -92,7 +92,7 @@ static int HWQueueRemove(struct _Queue *q) {
 //												Reset Hardware
 // *******************************************************************************************************************************
 
-#include "roms/foenix_charset.h"
+#include "roms/__foenix_charset.h"
 
 void HWReset(void) {
 	keyboardQueue.count = 0;
@@ -103,7 +103,7 @@ void HWReset(void) {
 		GFXSetFrequency(i,0);								// All beepers off
 	}
 	for (int i = 0;i < 0x800;i++) {
-		IOWriteMemory(1,0xC000+i,foenix_charset[i]);
+		IOWriteMemory(1,0xC000+i,__foenix_charset[i]);
 	}
 	IOWriteMemory(0,0xD659,32);
 	IOWriteMemory(0,0xD65A,80);

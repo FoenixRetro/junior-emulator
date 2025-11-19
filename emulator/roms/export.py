@@ -13,5 +13,5 @@ def export(sourceFile,targetFile):
 	h.write("static const BYTE8 {0}[] = {1} ;\n\n".format(arrayName,romImage))
 	h.close()
 
-export("monitor.rom","monitor_rom.h")
-export("Bm437_PhoenixEGA_8x8.bin","foenix_charset.h")
+export("monitor.rom","__monitor_rom.h")
+export("ega_8x8.bin","__foenix_charset.h")

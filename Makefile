@@ -1,23 +1,17 @@
-ifeq ($(OS),Windows_NT)
-include documents\common.make
-else
-include documents/common.make
-endif
+include environment/system.make
 
 all:kernel_target emulator_target
 
 kernel_target:
-	make -C kernel 
+	make -C kernel all
 
 emulator_target: 
-	make -C emulator		
+	make -C emulator all		
 
 run:kernel_target emulator_target
 	.$(S)bin$(S)jr256$(APPSTEM) basic.rom@b
 
 clean:
-	$(CDEL) $(BINDIR)jr256*
-	$(CDEL) jr256* 
-	$(CDEL) bin$(S)jr256*
+	rm build/*
 	make -C emulator clean
 	make -C kernel clean

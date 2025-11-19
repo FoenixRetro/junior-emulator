@@ -1,7 +1,7 @@
 // *******************************************************************************************************************************
 // *******************************************************************************************************************************
 //
-//		Name:		sys_debug_uk101.c
+//		Name:		sys_debug_f256.c
 //		Purpose:	Debugger Code (System Dependent)
 //		Created:	29th June 2022
 //		Author:		Paul Robson (paul@robsons->org.uk)
@@ -18,7 +18,7 @@
 #include "debugger.h"
 #include "hardware.h"
 
-#include "6502/__6502mnemonics.h"
+#include "processor/__6502mnemonics.h"
 
 #define DBGC_ADDRESS 	(0x0F0)														// Colour scheme.
 #define DBGC_DATA 		(0x0FF)														// (Background is in main.c)
