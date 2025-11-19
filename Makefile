@@ -9,7 +9,7 @@ emulator_target:
 	make -C emulator all		
 
 run:kernel_target emulator_target
-	.$(S)bin$(S)jr256$(APPSTEM) basic.rom@b
+	$(BUILDDIR)jr256$(APPSTEM) basic.rom@b
 
 clean:
 	rm build/*
