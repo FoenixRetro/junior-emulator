@@ -3,7 +3,7 @@
 #
 #		Name : 		process.py
 #		Purpose :	Generate 6502 emulation code.
-#		Date :		29th June 2022
+#		Date :		19th November 2025
 #		Author : 	Paul Robson (paul@robsons.org.uk)
 #
 # *******************************************************************************************

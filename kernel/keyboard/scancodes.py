@@ -3,7 +3,7 @@
 #
 #		Name : 		scancodes.py
 #		Purpose :	Generate PS/2 tables etc (II)
-#		Date :		6th August 2022
+#		Date :		19th August 2025
 #		Author : 	Paul Robson (paul@robsons.org.uk)
 #
 # *******************************************************************************************

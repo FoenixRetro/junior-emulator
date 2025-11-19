@@ -3,7 +3,7 @@
 #
 #		Name : 		ps2codes.py
 #		Purpose :	Generate PS/2 tables etc.
-#		Date :		11th December 2022
+#		Date :		19th November 2025
 #		Author : 	Paul Robson (paul@robsons.org.uk)
 #
 # *******************************************************************************************

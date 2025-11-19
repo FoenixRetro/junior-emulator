@@ -1,3 +1,14 @@
+# *******************************************************************************************
+# *******************************************************************************************
+#
+#		Name : 		Makefile
+#		Purpose :	Build the emulator
+#		Date :		19th November 2025
+#		Author : 	Paul Robson (paul@robsons.org.uk)
+#
+# *******************************************************************************************
+# *******************************************************************************************
+
 include ../environment/system.make
 
 APPNAME = $(BUILDDIR)jr256$(APPSTEM)
@@ -11,11 +22,14 @@ CC = g++
 
 all: .any emulator
 
-emulator: prebuild $(APPNAME)
+emulator: prebuild announce $(APPNAME)
 	
 %.o:%.cpp
 	$(CC) $(CADDRESSES) $(CXXFLAGS) -D INCLUDE_DEBUGGING_SUPPORT -I cpu -I framework -I include -I . -c -o $@ $<
 
+announce:
+	echo "Building Emulator"
+	
 clean:
 	$(CDEL) $(APPNAME) 
 	$(CDEL) src$(S)*.o 
