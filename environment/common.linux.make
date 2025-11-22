@@ -30,7 +30,7 @@ BUILDENVDIR = $(ROOTDIR)environment/
 #
 PYTHONDIRS=$(SCRIPTDIR):$(PYTHONPATH)
 #
-#		Script path
+#		Script path 
 #
 SCRIPTDIR = $(ROOTDIR)scripts/
 

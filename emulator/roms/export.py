@@ -22,4 +22,4 @@ def export(sourceFile,targetFile):
 	h.close()
 
 export("monitor.rom","__monitor_rom.h")
-export("ega_8x8.bin","__foenix_charset.h")
+export("ega_8x8.rom","__foenix_charset.h")
