@@ -28,6 +28,5 @@ BYTE8 HWReadKeyboardHardware(WORD16 address);
 void HWWriteKeyboardHardware(WORD16 address,BYTE8 data);
 void HWResetKeyboardHardware(void);
 void HWKeyboardHardwareDequeue(int key);
-int HWCheckKeyboardInterruptEnabled(void);
 
 #endif

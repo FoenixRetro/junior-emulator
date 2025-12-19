@@ -75,17 +75,3 @@ BYTE8 HWReadKeyboardHardware(WORD16 address) {
 void HWWriteKeyboardHardware(WORD16 address,BYTE8 data) {
 	// Should clear the queue here. Not really required ?
 }
-
-// *******************************************************************************************************************************
-//
-//										Interrupt for new key enabled ?
-//
-// *******************************************************************************************************************************
-
-int HWCheckKeyboardInterruptEnabled(void) {
-	if ((IOReadMemory(0,0xD66C) & 0x04) == 0) {			// Bit masked zero ?
-		IOWriteMemory(0,0xD660,4); 						// Set Pending Reg Bit 2
-		return -1;
-	}
-	return 0;
-}

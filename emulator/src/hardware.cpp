@@ -118,9 +118,12 @@ void HWSync(void) {
 		int key = HWQueueRemove(&keyboardQueue);
 		HWKeyboardHardwareDequeue(key);
 		//printf("Dequeue %x\n",key);
-		if (HWCheckKeyboardInterruptEnabled()) {
-			//printf("Interrupt\n");
-			CPUInterruptMaskable();							// fire IRQ
+		// Trigger a kbd interrupt (if it's not masked).
+		if ((IOReadMemory(0,0xD66C) & 0x04) == 0) {
+			// mark it pending
+			BYTE8 pending = IOReadMemory(0, 0xD660);
+			pending |= 0x04;
+			IOWriteMemory(0, 0xD660, pending);
 		}
 	}
 	if (IOReadMemory(0,0xD658) & 1) { 						// Timer on.
@@ -133,6 +136,20 @@ void HWSync(void) {
 			a++;
 		}
 	}
+
+	// Trigger an SOF interrupt (if it's not masked).
+	if ((IOReadMemory(0,0xD66C) & 0x01) == 0) {
+		// mark it pending
+		BYTE8 pending = IOReadMemory(0, 0xD660);
+		pending |= 0x01;
+		IOWriteMemory(0, 0xD660, pending);
+	}
+
+	// if there are any interrupts pending, tell the CPU to run the handler.
+	if (IOReadMemory(0, 0xD660) != 0) {
+		CPUInterruptMaskable();
+	}
+
 }
 
 // *******************************************************************************************************************************
